@@ -42,7 +42,7 @@ function Basic({ setToken }) {
         if (userRole === "Gestor") {
           navigate("/user-roles");
         } else if (userRole === "Operador") {
-          navigate("/landing-page");
+          navigate("/documentos");
         } else {
           navigate("/login");
         }

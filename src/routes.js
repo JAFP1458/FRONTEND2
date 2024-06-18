@@ -8,8 +8,8 @@ import Notifications from "layouts/notifications";
 import Profile from "layouts/profile";
 import SignIn from "layouts/authentication/sign-in";
 import SignUp from "layouts/authentication/sign-up";
-import UserRolesComponent from "layouts/user-roles/UserRolesComponent"; // Importa el nuevo componente
-
+import UserRolesComponent from "layouts/user-roles/UserRolesComponent";
+import Documentos from "layouts/documentos/documentos";
 import Icon from "@mui/material/Icon";
 
 const routes = [
@@ -84,6 +84,14 @@ const routes = [
     icon: <Icon fontSize="small">people</Icon>,
     route: "/user-roles",
     component: <UserRolesComponent />,
+  },
+  {
+    type: "collapse",
+    name: "Documentos",
+    key: "documentos",
+    icon: <Icon fontSize="small">document</Icon>,
+    route: "/documentos",
+    component: <Documentos />,
   },
 ];
 
