@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import PropTypes from "prop-types";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -32,52 +32,34 @@ const Documentos = ({ token }) => {
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState({
     titulo: "",
-    usuarioId: "",
+    usuarioCorreo: "",
     tipoDocumentoId: "",
     fechaInicio: "",
     fechaFin: "",
   });
   const [filterOpen, setFilterOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [searchUserId, setSearchUserId] = useState("");
+  const [searchFilters, setSearchFilters] = useState({
+    titulo: "",
+    usuarioCorreo: "",
+    tipoDocumentoId: "",
+    fechaInicio: "",
+    fechaFin: "",
+  });
   const [error, setError] = useState(null);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(20);
   const navigate = useNavigate();
   const theme = useTheme();
 
-  useEffect(() => {
-    fetchDocumentTypes();
-    fetchDocuments();
-  }, [token, page, rowsPerPage]);
-
-  useEffect(() => {
-    const delayDebounceFn = setTimeout(() => {
-      fetchDocuments();
-    }, 300);
-
-    return () => clearTimeout(delayDebounceFn);
-  }, [searchQuery, searchUserId, filters]);
-
-  const fetchDocuments = async () => {
+  const fetchDocuments = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
       const params = {
         _page: page + 1,
         _limit: rowsPerPage,
+        ...searchFilters,
       };
-      Object.keys(filters).forEach((key) => {
-        if (filters[key]) params[key] = filters[key];
-      });
-
-      if (searchQuery) {
-        params.titulo = searchQuery;
-      }
-
-      if (searchUserId) {
-        params.usuarioId = searchUserId;
-      }
 
       const response = await axios.get("http://localhost:5000/documents", {
         headers: {
@@ -93,7 +75,12 @@ const Documentos = ({ token }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [token, page, rowsPerPage, searchFilters]);
+
+  useEffect(() => {
+    fetchDocumentTypes();
+    fetchDocuments();
+  }, [token, page, rowsPerPage, fetchDocuments]);
 
   const fetchDocumentTypes = async () => {
     try {
@@ -138,6 +125,11 @@ const Documentos = ({ token }) => {
     setPage(0);
   };
 
+  const handleSearch = () => {
+    // Actualizar los filtros de búsqueda y ejecutar la búsqueda
+    setSearchFilters(filters);
+  };
+
   return (
     <DashboardLayout>
       <DashboardNavbar />
@@ -170,8 +162,8 @@ const Documentos = ({ token }) => {
                 <TextField
                   label="Título"
                   name="titulo"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  value={filters.titulo}
+                  onChange={handleFilterChange}
                   fullWidth
                   variant="outlined"
                   InputLabelProps={{
@@ -198,10 +190,10 @@ const Documentos = ({ token }) => {
               </Grid>
               <Grid item xs={12} sm={6} md={2}>
                 <TextField
-                  label="Usuario ID"
-                  name="usuarioId"
-                  value={searchUserId}
-                  onChange={(e) => setSearchUserId(e.target.value)}
+                  label="Correo Electrónico"
+                  name="usuarioCorreo"
+                  value={filters.usuarioCorreo}
+                  onChange={handleFilterChange}
                   fullWidth
                   variant="outlined"
                   InputLabelProps={{
@@ -336,6 +328,11 @@ const Documentos = ({ token }) => {
                 />
               </Grid>
             </Grid>
+            <Box mt={2} display="flex" justifyContent="flex-end">
+              <Button variant="contained" color="primary" onClick={handleSearch}>
+                Buscar
+              </Button>
+            </Box>
           </Paper>
         </Collapse>
 
