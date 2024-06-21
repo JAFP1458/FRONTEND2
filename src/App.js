@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect } from "react";
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { ThemeProvider } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
@@ -18,6 +18,8 @@ import { useMaterialUIController, setMiniSidenav, setOpenConfigurator } from "co
 import brandWhite from "assets/images/logo-ct.png";
 import brandDark from "assets/images/logo-ct-dark.png";
 import SignIn from "layouts/authentication/sign-in";
+import Documentos from "layouts/documentos/documentos";
+import DocumentDetail from "layouts/documentos/DocumentDetail"; // Importa DocumentDetail
 
 export default function App() {
   const [controller, dispatch] = useMaterialUIController();
@@ -34,9 +36,9 @@ export default function App() {
   const [onMouseEnter, setOnMouseEnter] = useState(false);
   const [rtlCache, setRtlCache] = useState(null);
   const { pathname } = useLocation();
-  const [token, setToken] = useState(null);
+  const [token, setToken] = useState(localStorage.getItem("token") || null);
 
-  useMemo(() => {
+  useEffect(() => {
     const cacheRtl = createCache({
       key: "rtl",
       stylisPlugins: [rtlPlugin],
@@ -44,6 +46,14 @@ export default function App() {
 
     setRtlCache(cacheRtl);
   }, []);
+
+  useEffect(() => {
+    if (token) {
+      localStorage.setItem("token", token);
+    } else {
+      localStorage.removeItem("token");
+    }
+  }, [token]);
 
   const handleOnMouseEnter = () => {
     if (miniSidenav && !onMouseEnter) {
@@ -77,11 +87,12 @@ export default function App() {
       }
 
       if (route.route) {
+        const Component = route.component.type;
         return (
           <Route
             exact
             path={route.route}
-            element={React.cloneElement(route.component, { setToken })}
+            element={<Component token={token} setToken={setToken} />}
             key={route.key}
           />
         );
@@ -137,6 +148,8 @@ export default function App() {
           {getRoutes(routes)}
           <Route path="/" element={<Navigate to="/authentication/sign-in" />} />
           <Route path="*" element={<Navigate to="/authentication/sign-in" />} />
+          <Route path="/authentication/sign-in" element={<SignIn setToken={setToken} />} />
+          <Route path="/documents/:documentId" element={<DocumentDetail token={token} />} />
         </Routes>
       </ThemeProvider>
     </CacheProvider>
@@ -162,6 +175,8 @@ export default function App() {
         {getRoutes(routes)}
         <Route path="/" element={<Navigate to="/authentication/sign-in" />} />
         <Route path="*" element={<Navigate to="/authentication/sign-in" />} />
+        <Route path="/authentication/sign-in" element={<SignIn setToken={setToken} />} />
+        <Route path="/documents/:documentId" element={<DocumentDetail token={token} />} />
       </Routes>
     </ThemeProvider>
   );
