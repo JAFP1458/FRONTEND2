@@ -14,23 +14,33 @@ Coded by www.creative-tim.com
 */
 
 // @mui material components
-import Card from "@mui/material/Card";
+import Card from '@mui/material/Card';
 // import Divider from "@mui/material/Divider";
-import Icon from "@mui/material/Icon";
+import Icon from '@mui/material/Icon';
 
 // Material Dashboard 2 React components
-import MDBox from "components/MDBox";
-import MDTypography from "components/MDTypography";
+import MDBox from 'components/MDBox';
+import MDTypography from 'components/MDTypography';
 // import MDButton from "components/MDButton";
 
 // Billing page components
-import Transaction from "layouts/billing/components/Transaction";
+import Transaction from 'layouts/billing/components/Transaction';
 
 function Transactions() {
   return (
-    <Card sx={{ height: "100%" }}>
-      <MDBox display="flex" justifyContent="space-between" alignItems="center" pt={3} px={2}>
-        <MDTypography variant="h6" fontWeight="medium" textTransform="capitalize">
+    <Card sx={{ height: '100%' }}>
+      <MDBox
+        display="flex"
+        justifyContent="space-between"
+        alignItems="center"
+        pt={3}
+        px={2}
+      >
+        <MDTypography
+          variant="h6"
+          fontWeight="medium"
+          textTransform="capitalize"
+        >
           Your Transaction&apos;s
         </MDTypography>
         <MDBox display="flex" alignItems="flex-start">
@@ -46,7 +56,12 @@ function Transactions() {
       </MDBox>
       <MDBox pt={3} pb={2} px={2}>
         <MDBox mb={2}>
-          <MDTypography variant="caption" color="text" fontWeight="bold" textTransform="uppercase">
+          <MDTypography
+            variant="caption"
+            color="text"
+            fontWeight="bold"
+            textTransform="uppercase"
+          >
             newest
           </MDTypography>
         </MDBox>
@@ -56,7 +71,7 @@ function Transactions() {
           flexDirection="column"
           p={0}
           m={0}
-          sx={{ listStyle: "none" }}
+          sx={{ listStyle: 'none' }}
         >
           <Transaction
             color="error"
@@ -74,7 +89,12 @@ function Transactions() {
           />
         </MDBox>
         <MDBox mt={1} mb={2}>
-          <MDTypography variant="caption" color="text" fontWeight="bold" textTransform="uppercase">
+          <MDTypography
+            variant="caption"
+            color="text"
+            fontWeight="bold"
+            textTransform="uppercase"
+          >
             yesterday
           </MDTypography>
         </MDBox>
@@ -84,7 +104,7 @@ function Transactions() {
           flexDirection="column"
           p={0}
           m={0}
-          sx={{ listStyle: "none" }}
+          sx={{ listStyle: 'none' }}
         >
           <Transaction
             color="success"

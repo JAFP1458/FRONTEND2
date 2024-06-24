@@ -1,7 +1,7 @@
-import React, { useEffect, useState, useCallback } from "react";
-import PropTypes from "prop-types";
-import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import React, { useEffect, useState, useCallback } from 'react';
+import PropTypes from 'prop-types';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import {
   CircularProgress,
   TextField,
@@ -16,38 +16,46 @@ import {
   InputLabel,
   Select,
   TablePagination,
-} from "@mui/material";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import ExpandLessIcon from "@mui/icons-material/ExpandLess";
-import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
-import DashboardNavbar from "examples/Navbars/DashboardNavbar";
-import MDBox from "components/MDBox";
-import MDButton from "components/MDButton";
-import MDTypography from "components/MDTypography";
-import DataTable from "examples/Tables/DataTable";
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+} from '@mui/material';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import ExpandLessIcon from '@mui/icons-material/ExpandLess';
+import DashboardLayout from 'examples/LayoutContainers/DashboardLayout';
+import DashboardNavbar from 'examples/Navbars/DashboardNavbar';
+import MDBox from 'components/MDBox';
+import MDButton from 'components/MDButton';
+import MDTypography from 'components/MDTypography';
+import DataTable from 'examples/Tables/DataTable';
+import { isValid } from 'date-fns'; // Importa la función isValid
 
 const Documentos = ({ token }) => {
   const [documents, setDocuments] = useState([]);
   const [documentTypes, setDocumentTypes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState({
-    titulo: "",
-    usuarioCorreo: "",
-    tipoDocumentoId: "",
-    fechaInicio: "",
-    fechaFin: "",
+    titulo: '',
+    usuarioCorreo: '',
+    tipoDocumentoId: '',
+    fechaInicio: '',
+    fechaFin: '',
   });
   const [filterOpen, setFilterOpen] = useState(false);
   const [searchFilters, setSearchFilters] = useState({
-    titulo: "",
-    usuarioCorreo: "",
-    tipoDocumentoId: "",
-    fechaInicio: "",
-    fechaFin: "",
+    titulo: '',
+    usuarioCorreo: '',
+    tipoDocumentoId: '',
+    fechaInicio: '',
+    fechaFin: '',
   });
   const [error, setError] = useState(null);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(20);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [documentToDelete, setDocumentToDelete] = useState(null);
   const navigate = useNavigate();
   const theme = useTheme();
 
@@ -61,7 +69,7 @@ const Documentos = ({ token }) => {
         ...searchFilters,
       };
 
-      const response = await axios.get("http://localhost:5000/documents", {
+      const response = await axios.get('http://localhost:5000/documents', {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -69,8 +77,8 @@ const Documentos = ({ token }) => {
       });
       setDocuments(response.data || []);
     } catch (error) {
-      console.error("Error fetching documents:", error);
-      setError("Error fetching documents");
+      console.error('Error fetching documents:', error);
+      setError('Error fetching documents');
       setDocuments([]);
     } finally {
       setLoading(false);
@@ -84,20 +92,23 @@ const Documentos = ({ token }) => {
 
   const fetchDocumentTypes = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/documents/types", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await axios.get(
+        'http://localhost:5000/documents/types',
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       setDocumentTypes(response.data || []);
     } catch (error) {
-      console.error("Error fetching document types:", error);
+      console.error('Error fetching document types:', error);
     }
   };
 
-  const handleFilterChange = (e) => {
+  const handleFilterChange = e => {
     const { name, value } = e.target;
-    setFilters((prevFilters) => ({
+    setFilters(prevFilters => ({
       ...prevFilters,
       [name]: value,
     }));
@@ -108,19 +119,76 @@ const Documentos = ({ token }) => {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    navigate("/authentication/sign-in");
+    localStorage.removeItem('token');
+    navigate('/authentication/sign-in');
   };
 
-  const handleViewDocument = (documentId) => {
+  const handleViewDocument = documentId => {
     navigate(`/documents/${documentId}`);
+  };
+
+  const handleDownloadDocument = async url => {
+    try {
+      const response = await axios.post(
+        'http://localhost:5000/documents/descargar',
+        { documentUrl: url },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          responseType: 'blob',
+        }
+      );
+      const blob = new Blob([response.data], {
+        type: response.headers['content-type'],
+      });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = url.split('/').pop();
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error('Error downloading document:', error);
+      alert('Error al descargar el documento');
+    }
+  };
+
+  const handleDeleteDocument = async () => {
+    try {
+      await axios.delete('http://localhost:5000/documents', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        data: {
+          documentUrl: documentToDelete,
+        },
+      });
+      alert('Documento eliminado correctamente');
+      setConfirmOpen(false);
+      setDocumentToDelete(null);
+      fetchDocuments(); // Refrescar la lista de documentos
+    } catch (error) {
+      console.error('Error deleting document:', error);
+      alert('Error al eliminar el documento');
+    }
+  };
+
+  const handleOpenConfirmDialog = documentUrl => {
+    setDocumentToDelete(documentUrl);
+    setConfirmOpen(true);
+  };
+
+  const handleCloseConfirmDialog = () => {
+    setConfirmOpen(false);
+    setDocumentToDelete(null);
   };
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
 
-  const handleChangeRowsPerPage = (event) => {
+  const handleChangeRowsPerPage = event => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
@@ -134,7 +202,12 @@ const Documentos = ({ token }) => {
     <DashboardLayout>
       <DashboardNavbar />
       <MDBox>
-        <MDBox display="flex" justifyContent="space-between" alignItems="center" mb={3}>
+        <MDBox
+          display="flex"
+          justifyContent="space-between"
+          alignItems="center"
+          mb={3}
+        >
           <Box display="flex" alignItems="center">
             <Button
               variant="text"
@@ -142,7 +215,7 @@ const Documentos = ({ token }) => {
               onClick={handleToggleFilters}
               startIcon={filterOpen ? <ExpandLessIcon /> : <ExpandMoreIcon />}
             >
-              {filterOpen ? "Ocultar Filtros" : "Mostrar Filtros"}
+              {filterOpen ? 'Ocultar Filtros' : 'Mostrar Filtros'}
             </Button>
           </Box>
         </MDBox>
@@ -151,8 +224,8 @@ const Documentos = ({ token }) => {
           <Paper
             elevation={3}
             style={{
-              padding: "16px",
-              marginBottom: "16px",
+              padding: '16px',
+              marginBottom: '16px',
               backgroundColor: theme.palette.background.default,
               color: theme.palette.text.primary,
             }}
@@ -173,14 +246,14 @@ const Documentos = ({ token }) => {
                     style: { color: theme.palette.text.primary },
                   }}
                   sx={{
-                    "& .MuiOutlinedInput-root": {
-                      "& fieldset": {
+                    '& .MuiOutlinedInput-root': {
+                      '& fieldset': {
                         borderColor: theme.palette.text.primary,
                       },
-                      "&:hover fieldset": {
+                      '&:hover fieldset': {
                         borderColor: theme.palette.primary.main,
                       },
-                      "&.Mui-focused fieldset": {
+                      '&.Mui-focused fieldset': {
                         borderColor: theme.palette.primary.main,
                       },
                     },
@@ -203,14 +276,14 @@ const Documentos = ({ token }) => {
                     style: { color: theme.palette.text.primary },
                   }}
                   sx={{
-                    "& .MuiOutlinedInput-root": {
-                      "& fieldset": {
+                    '& .MuiOutlinedInput-root': {
+                      '& fieldset': {
                         borderColor: theme.palette.text.primary,
                       },
-                      "&:hover fieldset": {
+                      '&:hover fieldset': {
                         borderColor: theme.palette.primary.main,
                       },
-                      "&.Mui-focused fieldset": {
+                      '&.Mui-focused fieldset': {
                         borderColor: theme.palette.primary.main,
                       },
                     },
@@ -227,7 +300,7 @@ const Documentos = ({ token }) => {
                   <InputLabel
                     style={{ color: theme.palette.text.primary }}
                     sx={{
-                      "&.Mui-focused": {
+                      '&.Mui-focused': {
                         color: theme.palette.primary.main,
                       },
                     }}
@@ -241,22 +314,25 @@ const Documentos = ({ token }) => {
                     onChange={handleFilterChange}
                     style={{ color: theme.palette.text.primary }}
                     sx={{
-                      "& .MuiOutlinedInput-root": {
-                        "& fieldset": {
+                      '& .MuiOutlinedInput-root': {
+                        '& fieldset': {
                           borderColor: theme.palette.text.primary,
                         },
-                        "&:hover fieldset": {
+                        '&:hover fieldset': {
                           borderColor: theme.palette.primary.main,
                         },
-                        "&.Mui-focused fieldset": {
+                        '&.Mui-focused fieldset': {
                           borderColor: theme.palette.primary.main,
                         },
                       },
                     }}
                   >
                     <MenuItem value="">Seleccionar Tipo</MenuItem>
-                    {documentTypes.map((type) => (
-                      <MenuItem key={type.tipodocumentoid} value={type.tipodocumentoid}>
+                    {documentTypes.map(type => (
+                      <MenuItem
+                        key={type.tipodocumentoid}
+                        value={type.tipodocumentoid}
+                      >
                         {type.descripcion}
                       </MenuItem>
                     ))}
@@ -280,14 +356,14 @@ const Documentos = ({ token }) => {
                   fullWidth
                   variant="outlined"
                   sx={{
-                    "& .MuiOutlinedInput-root": {
-                      "& fieldset": {
+                    '& .MuiOutlinedInput-root': {
+                      '& fieldset': {
                         borderColor: theme.palette.text.primary,
                       },
-                      "&:hover fieldset": {
+                      '&:hover fieldset': {
                         borderColor: theme.palette.primary.main,
                       },
-                      "&.Mui-focused fieldset": {
+                      '&.Mui-focused fieldset': {
                         borderColor: theme.palette.primary.main,
                       },
                     },
@@ -312,14 +388,14 @@ const Documentos = ({ token }) => {
                   fullWidth
                   variant="outlined"
                   sx={{
-                    "& .MuiOutlinedInput-root": {
-                      "& fieldset": {
+                    '& .MuiOutlinedInput-root': {
+                      '& fieldset': {
                         borderColor: theme.palette.text.primary,
                       },
-                      "&:hover fieldset": {
+                      '&:hover fieldset': {
                         borderColor: theme.palette.primary.main,
                       },
-                      "&.Mui-focused fieldset": {
+                      '&.Mui-focused fieldset': {
                         borderColor: theme.palette.primary.main,
                       },
                     },
@@ -329,7 +405,7 @@ const Documentos = ({ token }) => {
               </Grid>
             </Grid>
             <Box mt={2} display="flex" justifyContent="flex-end">
-              <Button variant="contained" color="primary" onClick={handleSearch}>
+              <Button variant="contained" color="info" onClick={handleSearch}>
                 Buscar
               </Button>
             </Box>
@@ -351,48 +427,75 @@ const Documentos = ({ token }) => {
             <DataTable
               table={{
                 columns: [
-                  { Header: "Título", accessor: "titulo", width: "20%" },
-                  { Header: "Descripción", accessor: "descripcion", width: "20%" },
-                  { Header: "Usuario", accessor: "usuariocorreo", width: "20%" },
-                  { Header: "Tipo de Documento", accessor: "tipodocumentonombre", width: "20%" },
-                  { Header: "Fecha de Creación", accessor: "fechacreacion", width: "10%" },
-                  { Header: "Acciones", accessor: "action", width: "10%" },
+                  { Header: 'Título', accessor: 'titulo', width: '20%' },
+                  {
+                    Header: 'Descripción',
+                    accessor: 'descripcion',
+                    width: '20%',
+                  },
+                  {
+                    Header: 'Usuario',
+                    accessor: 'usuariocorreo',
+                    width: '20%',
+                  },
+                  {
+                    Header: 'Tipo de Documento',
+                    accessor: 'tipodocumentonombre',
+                    width: '20%',
+                  },
+                  {
+                    Header: 'Fecha de Creación',
+                    accessor: 'fechacreacion',
+                    width: '10%',
+                  },
+                  { Header: 'Acciones', accessor: 'action', width: '10%' },
                 ],
                 rows: Array.isArray(documents)
-                  ? documents.map((document) => ({
-                      titulo: document.titulo,
-                      descripcion: document.descripcion,
-                      usuariocorreo: document.usuariocorreo,
-                      tipodocumentonombre: document.tipodocumentonombre,
-                      fechacreacion: document.fechacreacion,
-                      action: (
-                        <>
-                          <MDButton
-                            color="info"
-                            size="small"
-                            onClick={() => handleViewDocument(document.documentoid)}
-                            style={{ marginRight: "10px" }}
-                          >
-                            Ver Detalles
-                          </MDButton>
-                          <MDButton
-                            color="primary"
-                            size="small"
-                            onClick={() => handleDownloadDocument(document.url)}
-                            style={{ marginRight: "10px" }}
-                          >
-                            Descargar
-                          </MDButton>
-                          <MDButton
-                            color="error"
-                            size="small"
-                            onClick={() => handleDeleteDocument(document.documentoid)}
-                          >
-                            Eliminar
-                          </MDButton>
-                        </>
-                      ),
-                    }))
+                  ? documents.map(document => {
+                      const date = new Date(document.fechacreacion);
+                      return {
+                        titulo: document.titulo,
+                        descripcion: document.descripcion,
+                        usuariocorreo: document.usuariocorreo,
+                        tipodocumentonombre: document.tipodocumentonombre,
+                        fechacreacion: isValid(date)
+                          ? date.toLocaleString()
+                          : 'Fecha no válida',
+                        action: (
+                          <>
+                            <MDButton
+                              color="info"
+                              size="small"
+                              onClick={() =>
+                                handleViewDocument(document.documentoid)
+                              }
+                              style={{ marginRight: '10px' }}
+                            >
+                              Ver Detalles
+                            </MDButton>
+                            <MDButton
+                              color="primary"
+                              size="small"
+                              onClick={() =>
+                                handleDownloadDocument(document.url)
+                              }
+                              style={{ marginRight: '10px' }}
+                            >
+                              Descargar
+                            </MDButton>
+                            <MDButton
+                              color="error"
+                              size="small"
+                              onClick={() =>
+                                handleOpenConfirmDialog(document.url)
+                              } // Usar la URL del documento para eliminar
+                            >
+                              Eliminar
+                            </MDButton>
+                          </>
+                        ),
+                      };
+                    })
                   : [],
               }}
               entriesPerPage={false}
@@ -412,6 +515,23 @@ const Documentos = ({ token }) => {
           </>
         )}
       </MDBox>
+
+      <Dialog open={confirmOpen} onClose={handleCloseConfirmDialog}>
+        <DialogTitle>Confirmar Eliminación</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            ¿Está seguro de que desea eliminar este documento?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseConfirmDialog} color="primary">
+            Cancelar
+          </Button>
+          <Button onClick={handleDeleteDocument} color="error">
+            Eliminar
+          </Button>
+        </DialogActions>
+      </Dialog>
     </DashboardLayout>
   );
 };

@@ -1,25 +1,29 @@
-import React, { useState, useEffect } from "react";
-import { Routes, Route, Navigate, useLocation } from "react-router-dom";
-import { ThemeProvider } from "@mui/material/styles";
-import CssBaseline from "@mui/material/CssBaseline";
-import Icon from "@mui/material/Icon";
-import MDBox from "components/MDBox";
-import Sidenav from "examples/Sidenav";
-import Configurator from "examples/Configurator";
-import theme from "assets/theme";
-import themeRTL from "assets/theme/theme-rtl";
-import themeDark from "assets/theme-dark";
-import themeDarkRTL from "assets/theme-dark/theme-rtl";
-import rtlPlugin from "stylis-plugin-rtl";
-import { CacheProvider } from "@emotion/react";
-import createCache from "@emotion/cache";
-import routes from "routes";
-import { useMaterialUIController, setMiniSidenav, setOpenConfigurator } from "context";
-import brandWhite from "assets/images/logo-ct.png";
-import brandDark from "assets/images/logo-ct-dark.png";
-import SignIn from "layouts/authentication/sign-in";
-import Documentos from "layouts/documentos/documentos";
-import DocumentDetail from "layouts/documentos/DocumentDetail"; // Importa DocumentDetail
+import React, { useState, useEffect } from 'react';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { ThemeProvider } from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline';
+import Icon from '@mui/material/Icon';
+import MDBox from 'components/MDBox';
+import Sidenav from 'examples/Sidenav';
+import Configurator from 'examples/Configurator';
+import theme from 'assets/theme';
+import themeRTL from 'assets/theme/theme-rtl';
+import themeDark from 'assets/theme-dark';
+import themeDarkRTL from 'assets/theme-dark/theme-rtl';
+import rtlPlugin from 'stylis-plugin-rtl';
+import { CacheProvider } from '@emotion/react';
+import createCache from '@emotion/cache';
+import routes from 'routes';
+import {
+  useMaterialUIController,
+  setMiniSidenav,
+  setOpenConfigurator,
+} from 'context';
+import brandWhite from 'assets/images/logo-ct.png';
+import brandDark from 'assets/images/logo-ct-dark.png';
+import SignIn from 'layouts/authentication/sign-in';
+import Documentos from 'layouts/documentos/documentos';
+import DocumentDetail from 'layouts/documentos/DocumentDetail'; // Importa DocumentDetail
 
 export default function App() {
   const [controller, dispatch] = useMaterialUIController();
@@ -36,11 +40,11 @@ export default function App() {
   const [onMouseEnter, setOnMouseEnter] = useState(false);
   const [rtlCache, setRtlCache] = useState(null);
   const { pathname } = useLocation();
-  const [token, setToken] = useState(localStorage.getItem("token") || null);
+  const [token, setToken] = useState(localStorage.getItem('token') || null);
 
   useEffect(() => {
     const cacheRtl = createCache({
-      key: "rtl",
+      key: 'rtl',
       stylisPlugins: [rtlPlugin],
     });
 
@@ -49,9 +53,9 @@ export default function App() {
 
   useEffect(() => {
     if (token) {
-      localStorage.setItem("token", token);
+      localStorage.setItem('token', token);
     } else {
-      localStorage.removeItem("token");
+      localStorage.removeItem('token');
     }
   }, [token]);
 
@@ -69,10 +73,11 @@ export default function App() {
     }
   };
 
-  const handleConfiguratorOpen = () => setOpenConfigurator(dispatch, !openConfigurator);
+  const handleConfiguratorOpen = () =>
+    setOpenConfigurator(dispatch, !openConfigurator);
 
   useEffect(() => {
-    document.body.setAttribute("dir", direction);
+    document.body.setAttribute('dir', direction);
   }, [direction]);
 
   useEffect(() => {
@@ -80,8 +85,8 @@ export default function App() {
     document.scrollingElement.scrollTop = 0;
   }, [pathname]);
 
-  const getRoutes = (allRoutes) =>
-    allRoutes.map((route) => {
+  const getRoutes = allRoutes =>
+    allRoutes.map(route => {
       if (route.collapse) {
         return getRoutes(route.collapse);
       }
@@ -116,7 +121,7 @@ export default function App() {
       bottom="2rem"
       zIndex={99}
       color="dark"
-      sx={{ cursor: "pointer" }}
+      sx={{ cursor: 'pointer' }}
       onClick={handleConfiguratorOpen}
     >
       <Icon fontSize="small" color="inherit">
@@ -125,15 +130,19 @@ export default function App() {
     </MDBox>
   );
 
-  return direction === "rtl" ? (
+  return direction === 'rtl' ? (
     <CacheProvider value={rtlCache}>
       <ThemeProvider theme={darkMode ? themeDarkRTL : themeRTL}>
         <CssBaseline />
-        {layout === "dashboard" && (
+        {layout === 'dashboard' && (
           <>
             <Sidenav
               color={sidenavColor}
-              brand={(transparentSidenav && !darkMode) || whiteSidenav ? brandDark : brandWhite}
+              brand={
+                (transparentSidenav && !darkMode) || whiteSidenav
+                  ? brandDark
+                  : brandWhite
+              }
               brandName="Material Dashboard 2"
               routes={routes}
               onMouseEnter={handleOnMouseEnter}
@@ -143,24 +152,34 @@ export default function App() {
             {configsButton}
           </>
         )}
-        {layout === "vr" && <Configurator />}
+        {layout === 'vr' && <Configurator />}
         <Routes>
           {getRoutes(routes)}
           <Route path="/" element={<Navigate to="/authentication/sign-in" />} />
           <Route path="*" element={<Navigate to="/authentication/sign-in" />} />
-          <Route path="/authentication/sign-in" element={<SignIn setToken={setToken} />} />
-          <Route path="/documents/:documentId" element={<DocumentDetail token={token} />} />
+          <Route
+            path="/authentication/sign-in"
+            element={<SignIn setToken={setToken} />}
+          />
+          <Route
+            path="/documents/:documentId"
+            element={<DocumentDetail token={token} />}
+          />
         </Routes>
       </ThemeProvider>
     </CacheProvider>
   ) : (
     <ThemeProvider theme={darkMode ? themeDark : theme}>
       <CssBaseline />
-      {layout === "dashboard" && (
+      {layout === 'dashboard' && (
         <>
           <Sidenav
             color={sidenavColor}
-            brand={(transparentSidenav && !darkMode) || whiteSidenav ? brandDark : brandWhite}
+            brand={
+              (transparentSidenav && !darkMode) || whiteSidenav
+                ? brandDark
+                : brandWhite
+            }
             brandName="Material Dashboard 2"
             routes={routes}
             onMouseEnter={handleOnMouseEnter}
@@ -170,13 +189,19 @@ export default function App() {
           {configsButton}
         </>
       )}
-      {layout === "vr" && <Configurator />}
+      {layout === 'vr' && <Configurator />}
       <Routes>
         {getRoutes(routes)}
         <Route path="/" element={<Navigate to="/authentication/sign-in" />} />
         <Route path="*" element={<Navigate to="/authentication/sign-in" />} />
-        <Route path="/authentication/sign-in" element={<SignIn setToken={setToken} />} />
-        <Route path="/documents/:documentId" element={<DocumentDetail token={token} />} />
+        <Route
+          path="/authentication/sign-in"
+          element={<SignIn setToken={setToken} />}
+        />
+        <Route
+          path="/documents/:documentId"
+          element={<DocumentDetail token={token} />}
+        />
       </Routes>
     </ThemeProvider>
   );

@@ -1,55 +1,61 @@
-import React, { useState } from "react";
-import PropTypes from "prop-types";
-import { useNavigate, Link } from "react-router-dom";
-import Card from "@mui/material/Card";
-import Switch from "@mui/material/Switch";
-import MDBox from "components/MDBox";
-import MDTypography from "components/MDTypography";
-import MDInput from "components/MDInput";
-import MDButton from "components/MDButton";
-import BasicLayout from "layouts/authentication/components/BasicLayout";
-import bgImage from "assets/images/Ibarra-Ecuador-transformed.jpeg";
-import axios from "axios";
-import { jwtDecode } from "jwt-decode"; // Importación nombrada correcta
+import React, { useState } from 'react';
+import PropTypes from 'prop-types';
+import { useNavigate, Link } from 'react-router-dom';
+import Card from '@mui/material/Card';
+import Switch from '@mui/material/Switch';
+import MDBox from 'components/MDBox';
+import MDTypography from 'components/MDTypography';
+import MDInput from 'components/MDInput';
+import MDButton from 'components/MDButton';
+import BasicLayout from 'layouts/authentication/components/BasicLayout';
+import bgImage from 'assets/images/Ibarra-Ecuador-transformed.jpeg';
+import axios from 'axios';
+import { jwtDecode } from 'jwt-decode';
 
 function Basic({ setToken }) {
-  const [correoElectronico, setCorreoElectronico] = useState("");
-  const [contraseña, setContraseña] = useState("");
-  const [errorMessage, setErrorMessage] = useState("");
+  const [correoElectronico, setCorreoElectronico] = useState('');
+  const [contraseña, setContraseña] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
   const navigate = useNavigate();
 
   const handleSetRememberMe = () => setRememberMe(!rememberMe);
 
-  const handleSubmit = (event) => {
+  const handleSubmit = event => {
     event.preventDefault();
-    setErrorMessage("");
+    setErrorMessage('');
 
     axios
-      .post("http://localhost:5000/login", { correoElectronico, contraseña })
-      .then((response) => {
+      .post('http://localhost:5000/login', { correoElectronico, contraseña })
+      .then(response => {
         const token = response.data.token;
-        localStorage.setItem("token", token);
+        localStorage.setItem('token', token);
         setToken(token);
         const decodedToken = jwtDecode(token);
         const userRole = decodedToken.userRole;
+        const usuarioID = decodedToken.usuarioID;
+        localStorage.setItem('usuarioID', usuarioID);
 
-        if (userRole === "Gestor") {
-          navigate("/user-roles");
-        } else if (userRole === "Operador") {
-          navigate("/documentos");
+        if (userRole === 'Gestor') {
+          navigate('/user-roles');
+        } else if (userRole === 'Operador') {
+          navigate('/documentos');
         } else {
-          navigate("/login");
+          navigate('/login');
         }
       })
-      .catch((error) => {
-        console.error("There was an error logging in!", error);
+      .catch(error => {
+        console.error('There was an error logging in!', error);
         if (error.response) {
-          setErrorMessage(error.response.data.message || "Error en el inicio de sesión");
+          setErrorMessage(
+            error.response.data.message || 'Error en el inicio de sesión'
+          );
         } else if (error.request) {
-          setErrorMessage("Error en el servidor. Inténtalo de nuevo más tarde.");
+          setErrorMessage(
+            'Error en el servidor. Inténtalo de nuevo más tarde.'
+          );
         } else {
-          setErrorMessage("Error en el inicio de sesión");
+          setErrorMessage('Error en el inicio de sesión');
         }
       });
   };
@@ -80,7 +86,7 @@ function Basic({ setToken }) {
                 label="Correo Electrónico"
                 fullWidth
                 value={correoElectronico}
-                onChange={(e) => setCorreoElectronico(e.target.value)}
+                onChange={e => setCorreoElectronico(e.target.value)}
               />
             </MDBox>
             <MDBox mb={2}>
@@ -89,7 +95,7 @@ function Basic({ setToken }) {
                 label="Contraseña"
                 fullWidth
                 value={contraseña}
-                onChange={(e) => setContraseña(e.target.value)}
+                onChange={e => setContraseña(e.target.value)}
               />
             </MDBox>
             <MDBox display="flex" alignItems="center" ml={-1}>
@@ -99,7 +105,7 @@ function Basic({ setToken }) {
                 fontWeight="regular"
                 color="text"
                 onClick={handleSetRememberMe}
-                sx={{ cursor: "pointer", userSelect: "none", ml: -1 }}
+                sx={{ cursor: 'pointer', userSelect: 'none', ml: -1 }}
               >
                 &nbsp;&nbsp;Recordarme
               </MDTypography>

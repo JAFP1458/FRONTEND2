@@ -15,7 +15,7 @@ Coded by www.creative-tim.com
 
 /* eslint-disable no-dupe-keys */
 // Material Dashboard 2 React base styles
-import colors from "assets/theme/base/colors";
+import colors from 'assets/theme/base/colors';
 
 const { gradients, dark } = colors;
 
@@ -23,7 +23,7 @@ function configs(labels, datasets) {
   const backgroundColors = [];
 
   if (datasets.backgroundColors) {
-    datasets.backgroundColors.forEach((color) =>
+    datasets.backgroundColors.forEach(color =>
       gradients[color]
         ? backgroundColors.push(gradients[color].state)
         : backgroundColors.push(dark.main)
@@ -53,7 +53,7 @@ function configs(labels, datasets) {
       },
       interaction: {
         intersect: false,
-        mode: "index",
+        mode: 'index',
       },
     },
   };

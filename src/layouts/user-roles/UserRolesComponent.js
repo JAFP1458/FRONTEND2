@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import axios from "axios";
-import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
-import DashboardNavbar from "examples/Navbars/DashboardNavbar";
-import MDBox from "components/MDBox";
-import MDTypography from "components/MDTypography";
-import MDButton from "components/MDButton";
-import DataTable from "examples/Tables/DataTable";
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import DashboardLayout from 'examples/LayoutContainers/DashboardLayout';
+import DashboardNavbar from 'examples/Navbars/DashboardNavbar';
+import MDBox from 'components/MDBox';
+import MDTypography from 'components/MDTypography';
+import MDButton from 'components/MDButton';
+import DataTable from 'examples/Tables/DataTable';
 import {
   Dialog,
   DialogTitle,
@@ -15,25 +15,25 @@ import {
   TextField,
   CircularProgress,
   MenuItem,
-} from "@mui/material";
-import { FormGroup, Label } from "reactstrap";
+} from '@mui/material';
+import { FormGroup, Label } from 'reactstrap';
 
 const UserRolesComponent = () => {
   const [users, setUsers] = useState([]);
   const [roles, setRoles] = useState([]);
   const [assignments, setAssignments] = useState([]);
   const [newUser, setNewUser] = useState({
-    nombre: "",
-    correoElectronico: "",
-    contraseña: "",
-    rolID: "",
+    nombre: '',
+    correoElectronico: '',
+    contraseña: '',
+    rolID: '',
   });
   const [errors, setErrors] = useState({});
   const [updateErrors, setUpdateErrors] = useState({});
   const [selectedUser, setSelectedUser] = useState(null);
   const [userToDelete, setUserToDelete] = useState(null);
-  const [newRole, setNewRole] = useState({ nombreRol: "" });
-  const [searchQuery, setSearchQuery] = useState("");
+  const [newRole, setNewRole] = useState({ nombreRol: '' });
+  const [searchQuery, setSearchQuery] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
   const [updateModalOpen, setUpdateModalOpen] = useState(false);
   const [deleteConfirmModalOpen, setDeleteConfirmModalOpen] = useState(false);
@@ -48,94 +48,104 @@ const UserRolesComponent = () => {
   }, []);
 
   const fetchUsers = async () => {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem('token');
     try {
-      const response = await axios.get("http://localhost:5000/users", {
+      const response = await axios.get('http://localhost:5000/users', {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
       setUsers(response.data);
     } catch (error) {
-      console.error("Error fetching users:", error);
+      console.error('Error fetching users:', error);
     } finally {
       setLoading(false);
     }
   };
 
   const fetchRoles = async () => {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem('token');
     try {
-      const response = await axios.get("http://localhost:5000/roles", {
+      const response = await axios.get('http://localhost:5000/roles', {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
       setRoles(response.data);
     } catch (error) {
-      console.error("Error fetching roles:", error);
+      console.error('Error fetching roles:', error);
     }
   };
 
   const fetchAssignments = async () => {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem('token');
     try {
-      const response = await axios.get("http://localhost:5000/roles/asignaciones", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await axios.get(
+        'http://localhost:5000/roles/asignaciones',
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       setAssignments(response.data);
     } catch (error) {
-      console.error("Error fetching assignments:", error);
+      console.error('Error fetching assignments:', error);
     }
   };
 
-  const fetchUserDetails = async (userId) => {
-    const token = localStorage.getItem("token");
+  const fetchUserDetails = async userId => {
+    const token = localStorage.getItem('token');
     try {
-      const response = await axios.get(`http://localhost:5000/users/details/${userId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await axios.get(
+        `http://localhost:5000/users/details/${userId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       setSelectedUser(response.data);
       setUpdateModalOpen(true);
     } catch (error) {
-      console.error("Error fetching user details:", error);
+      console.error('Error fetching user details:', error);
     }
   };
 
-  const handleUserChange = (e) => {
+  const handleUserChange = e => {
     const { name, value } = e.target;
     let errorMessages = { ...errors };
 
-    if (name === "nombre") {
+    if (name === 'nombre') {
       if (!/^[A-Za-z\s]+$/.test(value)) {
-        errorMessages.nombre = "El nombre debe contener solo letras y espacios";
+        errorMessages.nombre = 'El nombre debe contener solo letras y espacios';
       } else {
         delete errorMessages.nombre;
       }
     }
 
-    if (name === "correoElectronico") {
+    if (name === 'correoElectronico') {
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-        errorMessages.correoElectronico = "El correo electrónico no es válido";
+        errorMessages.correoElectronico = 'El correo electrónico no es válido';
       } else {
         delete errorMessages.correoElectronico;
       }
     }
 
-    if (name === "contraseña") {
-      if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}/.test(value)) {
+    if (name === 'contraseña') {
+      if (
+        !/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}/.test(
+          value
+        )
+      ) {
         errorMessages.contraseña =
-          "La contraseña debe tener al menos 8 caracteres, una letra mayúscula, una letra minúscula, un número y un carácter especial";
+          'La contraseña debe tener al menos 8 caracteres, una letra mayúscula, una letra minúscula, un número y un carácter especial';
       } else {
         delete errorMessages.contraseña;
       }
     }
 
-    setNewUser((prevState) => ({
+    setNewUser(prevState => ({
       ...prevState,
       [name]: value,
     }));
@@ -143,36 +153,40 @@ const UserRolesComponent = () => {
     setErrors(errorMessages);
   };
 
-  const handleUpdateUserChange = (e) => {
+  const handleUpdateUserChange = e => {
     const { name, value } = e.target;
     let errorMessages = { ...updateErrors };
 
-    if (name === "nombre") {
+    if (name === 'nombre') {
       if (!/^[A-Za-z\s]+$/.test(value)) {
-        errorMessages.nombre = "El nombre debe contener solo letras y espacios";
+        errorMessages.nombre = 'El nombre debe contener solo letras y espacios';
       } else {
         delete errorMessages.nombre;
       }
     }
 
-    if (name === "correoElectronico") {
+    if (name === 'correoElectronico') {
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-        errorMessages.correoElectronico = "El correo electrónico no es válido";
+        errorMessages.correoElectronico = 'El correo electrónico no es válido';
       } else {
         delete errorMessages.correoElectronico;
       }
     }
 
-    if (name === "contraseña" && value) {
-      if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}/.test(value)) {
+    if (name === 'contraseña' && value) {
+      if (
+        !/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}/.test(
+          value
+        )
+      ) {
         errorMessages.contraseña =
-          "La contraseña debe tener al menos 8 caracteres, una letra mayúscula, una letra minúscula, un número y un carácter especial";
+          'La contraseña debe tener al menos 8 caracteres, una letra mayúscula, una letra minúscula, un número y un carácter especial';
       } else {
         delete errorMessages.contraseña;
       }
     }
 
-    setSelectedUser((prevState) => ({
+    setSelectedUser(prevState => ({
       ...prevState,
       [name]: value,
     }));
@@ -180,9 +194,9 @@ const UserRolesComponent = () => {
     setUpdateErrors(errorMessages);
   };
 
-  const handleRoleChange = (e) => {
+  const handleRoleChange = e => {
     const { name, value } = e.target;
-    setNewRole((prevState) => ({
+    setNewRole(prevState => ({
       ...prevState,
       [name]: value,
     }));
@@ -193,19 +207,23 @@ const UserRolesComponent = () => {
       return; // Prevent form submission if there are validation errors
     }
 
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem('token');
     try {
-      const userResponse = await axios.post("http://localhost:5000/register", newUser, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const userResponse = await axios.post(
+        'http://localhost:5000/register',
+        newUser,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       fetchUsers();
       fetchAssignments();
       setModalOpen(false);
     } catch (error) {
-      console.error("Error adding user and assigning role:", error);
+      console.error('Error adding user and assigning role:', error);
     }
   };
 
@@ -214,14 +232,14 @@ const UserRolesComponent = () => {
       return; // Prevent form submission if there are validation errors
     }
 
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem('token');
     try {
       await axios.put(
         `http://localhost:5000/users/${selectedUser.usuarioid}`,
         {
           nombre: selectedUser.nombre,
           correoElectronico: selectedUser.correoelectronico,
-          contraseña: selectedUser.contraseña || "", // Enviar la contraseña solo si se ha cambiado
+          contraseña: selectedUser.contraseña || '', // Enviar la contraseña solo si se ha cambiado
           rolID: selectedUser.rolid,
         },
         {
@@ -235,29 +253,32 @@ const UserRolesComponent = () => {
       fetchAssignments();
       setUpdateModalOpen(false);
     } catch (error) {
-      console.error("Error updating user and role:", error);
+      console.error('Error updating user and role:', error);
     }
   };
 
-  const confirmDeleteUser = (user) => {
+  const confirmDeleteUser = user => {
     setUserToDelete(user);
     setDeleteConfirmModalOpen(true);
   };
 
   const deleteUser = async () => {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem('token');
     try {
-      await axios.delete(`http://localhost:5000/delete/${userToDelete.usuarioid}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      await axios.delete(
+        `http://localhost:5000/delete/${userToDelete.usuarioid}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       fetchUsers();
       fetchAssignments();
       setDeleteConfirmModalOpen(false);
     } catch (error) {
-      console.error("Error deleting user and role:", error);
+      console.error('Error deleting user and role:', error);
     }
   };
 
@@ -273,35 +294,42 @@ const UserRolesComponent = () => {
     setDeleteConfirmModalOpen(!deleteConfirmModalOpen);
   };
 
-  const openUpdateModal = (user) => {
+  const openUpdateModal = user => {
     fetchUserDetails(user.usuarioid);
   };
 
-  const getRoleName = (userID) => {
-    const assignment = assignments.find((assignment) => assignment.usuarioid === userID);
+  const getRoleName = userID => {
+    const assignment = assignments.find(
+      assignment => assignment.usuarioid === userID
+    );
     if (assignment) {
-      const role = roles.find((role) => role.rolid === assignment.rolid);
-      return role ? role.nombrerol : "Sin rol";
+      const role = roles.find(role => role.rolid === assignment.rolid);
+      return role ? role.nombrerol : 'Sin rol';
     }
-    return "Sin rol";
+    return 'Sin rol';
   };
 
   const filteredUsers = users.filter(
-    (user) =>
+    user =>
       user.nombre.toLowerCase().includes(searchQuery.toLowerCase()) ||
       user.correoelectronico.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    navigate("/login");
+    localStorage.removeItem('token');
+    navigate('/login');
   };
 
   return (
     <DashboardLayout>
       <DashboardNavbar />
       <MDBox py={3}>
-        <MDBox display="flex" justifyContent="space-between" alignItems="center" mb={3}>
+        <MDBox
+          display="flex"
+          justifyContent="space-between"
+          alignItems="center"
+          mb={3}
+        >
           <MDBox display="flex" alignItems="center">
             <MDTypography variant="h6" component="div" mr={2}>
               Buscar
@@ -311,7 +339,7 @@ const UserRolesComponent = () => {
               size="small"
               placeholder="Nombre o correo"
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={e => setSearchQuery(e.target.value)}
             />
           </MDBox>
           <MDButton color="primary" onClick={toggleModal}>
@@ -327,12 +355,16 @@ const UserRolesComponent = () => {
           <DataTable
             table={{
               columns: [
-                { Header: "Nombre", accessor: "nombre", width: "25%" },
-                { Header: "Correo Electrónico", accessor: "correoElectronico", width: "35%" },
-                { Header: "Rol", accessor: "rol", width: "20%" },
-                { Header: "", accessor: "action", width: "20%" },
+                { Header: 'Nombre', accessor: 'nombre', width: '25%' },
+                {
+                  Header: 'Correo Electrónico',
+                  accessor: 'correoElectronico',
+                  width: '35%',
+                },
+                { Header: 'Rol', accessor: 'rol', width: '20%' },
+                { Header: '', accessor: 'action', width: '20%' },
               ],
-              rows: filteredUsers.map((user) => ({
+              rows: filteredUsers.map(user => ({
                 nombre: user.nombre,
                 correoElectronico: user.correoelectronico,
                 rol: getRoleName(user.usuarioid),
@@ -342,11 +374,15 @@ const UserRolesComponent = () => {
                       color="info"
                       size="small"
                       onClick={() => openUpdateModal(user)}
-                      style={{ marginRight: "10px" }}
+                      style={{ marginRight: '10px' }}
                     >
                       Editar
                     </MDButton>
-                    <MDButton color="error" size="small" onClick={() => confirmDeleteUser(user)}>
+                    <MDButton
+                      color="error"
+                      size="small"
+                      onClick={() => confirmDeleteUser(user)}
+                    >
                       Eliminar
                     </MDButton>
                   </>
@@ -401,7 +437,7 @@ const UserRolesComponent = () => {
               error={!!errors.contraseña}
               helperText={
                 errors.contraseña ||
-                "La contraseña debe tener al menos 8 caracteres, una letra mayúscula, una letra minúscula, un número y un carácter especial."
+                'La contraseña debe tener al menos 8 caracteres, una letra mayúscula, una letra minúscula, un número y un carácter especial.'
               }
             />
           </FormGroup>
@@ -418,7 +454,7 @@ const UserRolesComponent = () => {
               helperText={errors.rolID}
             >
               <MenuItem value="">Seleccionar Rol</MenuItem>
-              {roles.map((role) => (
+              {roles.map(role => (
                 <MenuItem key={role.rolid} value={role.rolid}>
                   {role.nombrerol}
                 </MenuItem>
@@ -465,7 +501,9 @@ const UserRolesComponent = () => {
               />
             </FormGroup>
             <FormGroup>
-              <Label for="contraseña">Contraseña (dejar en blanco si no desea cambiarla)</Label>
+              <Label for="contraseña">
+                Contraseña (dejar en blanco si no desea cambiarla)
+              </Label>
               <TextField
                 fullWidth
                 type="password"
@@ -475,7 +513,7 @@ const UserRolesComponent = () => {
                 error={!!updateErrors.contraseña}
                 helperText={
                   updateErrors.contraseña ||
-                  "La contraseña debe tener al menos 8 caracteres, una letra mayúscula, una letra minúscula, un número y un carácter especial."
+                  'La contraseña debe tener al menos 8 caracteres, una letra mayúscula, una letra minúscula, un número y un carácter especial.'
                 }
               />
             </FormGroup>
@@ -486,13 +524,13 @@ const UserRolesComponent = () => {
                 fullWidth
                 name="rolID"
                 id="rolID"
-                value={selectedUser.rolid || ""}
+                value={selectedUser.rolid || ''}
                 onChange={handleUpdateUserChange}
                 error={!!updateErrors.rolID}
                 helperText={updateErrors.rolID}
               >
                 <MenuItem value="">Seleccionar Rol</MenuItem>
-                {roles.map((role) => (
+                {roles.map(role => (
                   <MenuItem key={role.rolid} value={role.rolid}>
                     {role.nombrerol}
                   </MenuItem>
@@ -501,7 +539,10 @@ const UserRolesComponent = () => {
             </FormGroup>
           </DialogContent>
           <DialogActions>
-            <MDButton onClick={updateUser} disabled={Object.keys(updateErrors).length > 0}>
+            <MDButton
+              onClick={updateUser}
+              disabled={Object.keys(updateErrors).length > 0}
+            >
               Actualizar
             </MDButton>
             <MDButton onClick={toggleUpdateModal}>Cancelar</MDButton>
@@ -512,7 +553,8 @@ const UserRolesComponent = () => {
       <Dialog open={deleteConfirmModalOpen} onClose={toggleDeleteConfirmModal}>
         <DialogTitle>Confirmar Eliminación</DialogTitle>
         <DialogContent>
-          ¿Está seguro que desea eliminar al usuario {userToDelete ? userToDelete.nombre : ""}?
+          ¿Está seguro que desea eliminar al usuario{' '}
+          {userToDelete ? userToDelete.nombre : ''}?
         </DialogContent>
         <DialogActions>
           <MDButton color="error" onClick={deleteUser}>

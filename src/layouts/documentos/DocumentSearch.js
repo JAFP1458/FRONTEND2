@@ -1,34 +1,36 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
-import { useHistory } from "react-router-dom";
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { useHistory } from 'react-router-dom';
 
 const DocumentSearch = () => {
   const [searchParams, setSearchParams] = useState({
-    titulo: "",
-    descripcion: "",
-    usuarioId: "",
-    tipoDocumentoId: "",
-    fechaInicio: "",
-    fechaFin: "",
+    titulo: '',
+    descripcion: '',
+    usuarioId: '',
+    tipoDocumentoId: '',
+    fechaInicio: '',
+    fechaFin: '',
   });
   const [documents, setDocuments] = useState([]);
   const history = useHistory();
 
-  const handleChange = (e) => {
+  const handleChange = e => {
     const { name, value } = e.target;
-    setSearchParams((prev) => ({ ...prev, [name]: value }));
+    setSearchParams(prev => ({ ...prev, [name]: value }));
   };
 
   const handleSearch = async () => {
     try {
-      const response = await axios.get("/api/documents", { params: searchParams });
+      const response = await axios.get('/api/documents', {
+        params: searchParams,
+      });
       setDocuments(response.data);
     } catch (error) {
-      console.error("Error searching documents:", error);
+      console.error('Error searching documents:', error);
     }
   };
 
-  const handleSelectDocument = (documentId) => {
+  const handleSelectDocument = documentId => {
     history.push(`/documents/${documentId}`);
   };
 
@@ -56,8 +58,11 @@ const DocumentSearch = () => {
       <div>
         <h2>Resultados de la Búsqueda</h2>
         <ul>
-          {documents.map((doc) => (
-            <li key={doc.documentoid} onClick={() => handleSelectDocument(doc.documentoid)}>
+          {documents.map(doc => (
+            <li
+              key={doc.documentoid}
+              onClick={() => handleSelectDocument(doc.documentoid)}
+            >
               {doc.titulo}
             </li>
           ))}

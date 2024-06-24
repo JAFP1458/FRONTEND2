@@ -14,14 +14,14 @@ Coded by www.creative-tim.com
 */
 
 // Material Dashboard 2 React base styles
-import boxShadows from "assets/theme-dark/base/boxShadows";
-import typography from "assets/theme-dark/base/typography";
-import colors from "assets/theme-dark/base/colors";
-import borders from "assets/theme-dark/base/borders";
+import boxShadows from 'assets/theme-dark/base/boxShadows';
+import typography from 'assets/theme-dark/base/typography';
+import colors from 'assets/theme-dark/base/colors';
+import borders from 'assets/theme-dark/base/borders';
 
 // Material Dashboard 2 React helper functions
-import pxToRem from "assets/theme-dark/functions/pxToRem";
-import rgba from "assets/theme-dark/functions/rgba";
+import pxToRem from 'assets/theme-dark/functions/pxToRem';
+import rgba from 'assets/theme-dark/functions/rgba';
 
 const { md } = boxShadows;
 const { size } = typography;
@@ -35,13 +35,13 @@ const autocomplete = {
       padding: pxToRem(8),
       fontSize: size.sm,
       color: text.main,
-      textAlign: "left",
+      textAlign: 'left',
       backgroundColor: `${background.card} !important`,
       borderRadius: borderRadius.md,
     },
 
     paper: {
-      boxShadow: "none",
+      boxShadow: 'none',
       backgroundColor: transparent.main,
     },
 
@@ -50,12 +50,13 @@ const autocomplete = {
       borderRadius: borderRadius.md,
       fontSize: size.sm,
       color: text.main,
-      transition: "background-color 300ms ease, color 300ms ease",
+      transition: 'background-color 300ms ease, color 300ms ease',
 
-      "&:hover, &:focus, &.Mui-selected, &.Mui-selected:hover, &.Mui-selected:focus": {
-        backgroundColor: rgba(light.main, 0.2),
-        color: white.main,
-      },
+      '&:hover, &:focus, &.Mui-selected, &.Mui-selected:hover, &.Mui-selected:focus':
+        {
+          backgroundColor: rgba(light.main, 0.2),
+          color: white.main,
+        },
 
       '&[aria-selected="true"]': {
         backgroundColor: `${rgba(light.main, 0.2)} !important`,
@@ -78,22 +79,23 @@ const autocomplete = {
     },
 
     tag: {
-      display: "flex",
-      alignItems: "center",
-      height: "auto",
+      display: 'flex',
+      alignItems: 'center',
+      height: 'auto',
       padding: pxToRem(4),
       backgroundColor: gradients.dark.state,
       color: white.main,
 
-      "& .MuiChip-label": {
+      '& .MuiChip-label': {
         lineHeight: 1.2,
         padding: `0 ${pxToRem(10)} 0 ${pxToRem(4)}`,
       },
 
-      "& .MuiSvgIcon-root, & .MuiSvgIcon-root:hover, & .MuiSvgIcon-root:focus": {
-        color: white.main,
-        marginRight: 0,
-      },
+      '& .MuiSvgIcon-root, & .MuiSvgIcon-root:hover, & .MuiSvgIcon-root:focus':
+        {
+          color: white.main,
+          marginRight: 0,
+        },
     },
 
     popupIndicator: {
