@@ -30,7 +30,7 @@ import MDBox from 'components/MDBox';
 import MDButton from 'components/MDButton';
 import MDTypography from 'components/MDTypography';
 import DataTable from 'examples/Tables/DataTable';
-import { isValid } from 'date-fns'; // Importa la función isValid
+import { isValid } from 'date-fns';
 
 const Documentos = ({ token }) => {
   const [documents, setDocuments] = useState([]);
@@ -156,7 +156,7 @@ const Documentos = ({ token }) => {
 
   const handleDeleteDocument = async () => {
     try {
-      await axios.delete('http://localhost:5000/documents', {
+      await axios.delete('http://localhost:5000/documents/borrar', {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -194,7 +194,6 @@ const Documentos = ({ token }) => {
   };
 
   const handleSearch = () => {
-    // Actualizar los filtros de búsqueda y ejecutar la búsqueda
     setSearchFilters(filters);
   };
 
@@ -488,7 +487,7 @@ const Documentos = ({ token }) => {
                               size="small"
                               onClick={() =>
                                 handleOpenConfirmDialog(document.url)
-                              } // Usar la URL del documento para eliminar
+                              }
                             >
                               Eliminar
                             </MDButton>

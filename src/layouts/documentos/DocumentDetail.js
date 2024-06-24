@@ -23,7 +23,7 @@ import { Delete, CloudUpload } from '@mui/icons-material';
 const DocumentDetail = ({ token }) => {
   const { documentId } = useParams();
   const navigate = useNavigate();
-  const [document, setDocument] = useState(null);
+  const [documents, setDocuments] = useState(null);
   const [versions, setVersions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [file, setFile] = useState(null);
@@ -44,7 +44,7 @@ const DocumentDetail = ({ token }) => {
           }
         );
         const { documento, versionesAnteriores } = response.data;
-        setDocument(documento);
+        setDocuments(documento);
         setVersions(versionesAnteriores);
       } catch (error) {
         console.error('Error fetching document details:', error);
@@ -164,7 +164,7 @@ const DocumentDetail = ({ token }) => {
           <Box display="flex" justifyContent="center" py={5}>
             <CircularProgress />
           </Box>
-        ) : document ? (
+        ) : documents ? (
           <MDBox mb={3}>
             <MDButton
               onClick={openUpdateDialog}
