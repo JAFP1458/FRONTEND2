@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import DashboardLayout from 'examples/LayoutContainers/DashboardLayout';
-import DashboardNavbar from 'examples/Navbars/DashboardNavbar';
 import MDBox from 'components/MDBox';
 import MDTypography from 'components/MDTypography';
 import MDButton from 'components/MDButton';
@@ -17,6 +16,7 @@ import {
   MenuItem,
 } from '@mui/material';
 import { FormGroup, Label } from 'reactstrap';
+import PropTypes from 'prop-types';
 
 const UserRolesComponent = () => {
   const [users, setUsers] = useState([]);
@@ -209,15 +209,11 @@ const UserRolesComponent = () => {
 
     const token = localStorage.getItem('token');
     try {
-      const userResponse = await axios.post(
-        'http://localhost:5000/register',
-        newUser,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      await axios.post('http://localhost:5000/register', newUser, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
       fetchUsers();
       fetchAssignments();
@@ -322,7 +318,6 @@ const UserRolesComponent = () => {
 
   return (
     <DashboardLayout>
-      <DashboardNavbar />
       <MDBox py={3}>
         <MDBox
           display="flex"
@@ -395,7 +390,6 @@ const UserRolesComponent = () => {
           />
         )}
       </MDBox>
-
       <Dialog open={modalOpen} onClose={toggleModal}>
         <DialogTitle>Agregar Usuario</DialogTitle>
         <DialogContent>
@@ -469,7 +463,6 @@ const UserRolesComponent = () => {
           <MDButton onClick={toggleModal}>Cancelar</MDButton>
         </DialogActions>
       </Dialog>
-
       {selectedUser && (
         <Dialog open={updateModalOpen} onClose={toggleUpdateModal}>
           <DialogTitle>Actualizar Usuario</DialogTitle>
@@ -549,7 +542,6 @@ const UserRolesComponent = () => {
           </DialogActions>
         </Dialog>
       )}
-
       <Dialog open={deleteConfirmModalOpen} onClose={toggleDeleteConfirmModal}>
         <DialogTitle>Confirmar Eliminación</DialogTitle>
         <DialogContent>
@@ -565,6 +557,10 @@ const UserRolesComponent = () => {
       </Dialog>
     </DashboardLayout>
   );
+};
+
+UserRolesComponent.propTypes = {
+  token: PropTypes.string.isRequired, // Asegúrate de que token es requerido
 };
 
 export default UserRolesComponent;

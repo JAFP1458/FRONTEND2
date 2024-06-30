@@ -1,5 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import {
+  Routes,
+  Route,
+  Navigate,
+  useLocation,
+  BrowserRouter as Router,
+} from 'react-router-dom';
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import Icon from '@mui/material/Icon';
@@ -21,9 +27,7 @@ import {
 } from 'context';
 import brandWhite from 'assets/images/logo-ct.png';
 import brandDark from 'assets/images/logo-ct-dark.png';
-import SignIn from 'layouts/authentication/sign-in';
-import Documentos from 'layouts/documentos/documentos';
-import DocumentDetail from 'layouts/documentos/DocumentDetail'; // Importa DocumentDetail
+import DashboardNavbar from 'examples/Navbars/DashboardNavbar'; // Asegúrate de importar esto
 
 export default function App() {
   const [controller, dispatch] = useMaterialUIController();
@@ -92,7 +96,7 @@ export default function App() {
       }
 
       if (route.route) {
-        const Component = route.component.type;
+        const Component = route.component;
         return (
           <Route
             exact
@@ -157,14 +161,6 @@ export default function App() {
           {getRoutes(routes)}
           <Route path="/" element={<Navigate to="/authentication/sign-in" />} />
           <Route path="*" element={<Navigate to="/authentication/sign-in" />} />
-          <Route
-            path="/authentication/sign-in"
-            element={<SignIn setToken={setToken} />}
-          />
-          <Route
-            path="/documents/:documentId"
-            element={<DocumentDetail token={token} />}
-          />
         </Routes>
       </ThemeProvider>
     </CacheProvider>
@@ -187,6 +183,8 @@ export default function App() {
           />
           <Configurator />
           {configsButton}
+          <DashboardNavbar token={token} />{' '}
+          {/* Asegúrate de que esto esté importado */}
         </>
       )}
       {layout === 'vr' && <Configurator />}
@@ -194,14 +192,6 @@ export default function App() {
         {getRoutes(routes)}
         <Route path="/" element={<Navigate to="/authentication/sign-in" />} />
         <Route path="*" element={<Navigate to="/authentication/sign-in" />} />
-        <Route
-          path="/authentication/sign-in"
-          element={<SignIn setToken={setToken} />}
-        />
-        <Route
-          path="/documents/:documentId"
-          element={<DocumentDetail token={token} />}
-        />
       </Routes>
     </ThemeProvider>
   );

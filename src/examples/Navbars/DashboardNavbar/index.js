@@ -1,6 +1,8 @@
-import { useState, useEffect } from 'react';
-import { useLocation, Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { io } from 'socket.io-client'; // Asegúrate de importar socket.io-client correctamente
 import PropTypes from 'prop-types';
+import { useLocation, Link } from 'react-router-dom';
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import IconButton from '@mui/material/IconButton';
@@ -24,7 +26,7 @@ import {
   setOpenConfigurator,
 } from 'context';
 
-function DashboardNavbar({ absolute, light, isMini }) {
+function DashboardNavbar({ absolute, light, isMini, token }) {
   const [navbarType, setNavbarType] = useState();
   const [controller, dispatch] = useMaterialUIController();
   const {
@@ -35,6 +37,7 @@ function DashboardNavbar({ absolute, light, isMini }) {
     darkMode,
   } = controller;
   const [openMenu, setOpenMenu] = useState(false);
+  const [notifications, setNotifications] = useState([]); // Estado para notificaciones
   const route = useLocation().pathname.split('/').slice(1);
 
   useEffect(() => {
@@ -57,6 +60,46 @@ function DashboardNavbar({ absolute, light, isMini }) {
     return () => window.removeEventListener('scroll', handleTransparentNavbar);
   }, [dispatch, fixedNavbar]);
 
+  // Fetch notificaciones desde el servidor
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      try {
+        const response = await axios.get(
+          'http://localhost:5000/documents/notifications',
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        setNotifications(response.data || []);
+      } catch (error) {
+        console.error('Error fetching notifications:', error);
+      }
+    };
+
+    fetchNotifications();
+
+    // Configuración de WebSockets para recibir notificaciones en tiempo real
+    const socket = io('http://localhost:5000'); // Utiliza io aquí
+    socket.on('connect', () => {
+      console.log('Connected to WebSocket server');
+    });
+
+    socket.on('notification', notification => {
+      setNotifications(prevNotifications => [
+        notification,
+        ...prevNotifications,
+      ]);
+    });
+
+    socket.on('disconnect', () => {
+      console.log('Disconnected from WebSocket server');
+    });
+
+    return () => socket.disconnect();
+  }, [token]);
+
   const handleMiniSidenav = () => setMiniSidenav(dispatch, !miniSidenav);
   const handleConfiguratorOpen = () =>
     setOpenConfigurator(dispatch, !openConfigurator);
@@ -75,15 +118,21 @@ function DashboardNavbar({ absolute, light, isMini }) {
       onClose={handleCloseMenu}
       sx={{ mt: 2 }}
     >
-      <NotificationItem icon={<Icon>email</Icon>} title="Check new messages" />
-      <NotificationItem
-        icon={<Icon>podcasts</Icon>}
-        title="Manage Podcast sessions"
-      />
-      <NotificationItem
-        icon={<Icon>shopping_cart</Icon>}
-        title="Payment successfully completed"
-      />
+      {notifications.length === 0 ? (
+        <NotificationItem
+          icon={<Icon>notifications</Icon>}
+          title="No hay nuevas notificaciones"
+        />
+      ) : (
+        notifications.map(notification => (
+          <NotificationItem
+            key={notification.notificacionid}
+            icon={<Icon>notifications</Icon>}
+            title={notification.titulo}
+            onClick={() => handleViewDocument(notification.documentoid)}
+          />
+        ))
+      )}
     </Menu>
   );
 
@@ -185,6 +234,7 @@ DashboardNavbar.propTypes = {
   absolute: PropTypes.bool,
   light: PropTypes.bool,
   isMini: PropTypes.bool,
+  token: PropTypes.string.isRequired, // Añadir la validación del prop token
 };
 
 export default DashboardNavbar;

@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import DashboardLayout from 'examples/LayoutContainers/DashboardLayout';
-import DashboardNavbar from 'examples/Navbars/DashboardNavbar';
 import MDBox from 'components/MDBox';
 import MDTypography from 'components/MDTypography';
 import MDButton from 'components/MDButton';
@@ -18,12 +17,12 @@ import {
   Button,
   IconButton,
 } from '@mui/material';
-import { Delete, CloudUpload } from '@mui/icons-material';
+import { Delete } from '@mui/icons-material';
 
 const DocumentDetail = ({ token }) => {
   const { documentId } = useParams();
   const navigate = useNavigate();
-  const [documents, setDocuments] = useState(null);
+  const [document, setDocument] = useState(null);
   const [versions, setVersions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [file, setFile] = useState(null);
@@ -44,17 +43,20 @@ const DocumentDetail = ({ token }) => {
           }
         );
         const { documento, versionesAnteriores } = response.data;
-        setDocuments(documento);
+        setDocument(documento);
         setVersions(versionesAnteriores);
       } catch (error) {
         console.error('Error fetching document details:', error);
+        if (error.response && error.response.status === 401) {
+          navigate('/authentication/sign-in');
+        }
       } finally {
         setLoading(false);
       }
     };
 
     fetchDocument();
-  }, [documentId, token]);
+  }, [documentId, token, navigate]);
 
   const handleFileChange = e => {
     setFile(e.target.files[0]);
@@ -81,7 +83,7 @@ const DocumentDetail = ({ token }) => {
         }
       );
       alert('Documento actualizado correctamente');
-      navigate('/documents'); // Navegar de regreso a la lista de documentos después de actualizar
+      navigate('/documents');
     } catch (error) {
       console.error('Error updating document:', error);
       alert('Error al actualizar el documento');
@@ -158,13 +160,12 @@ const DocumentDetail = ({ token }) => {
 
   return (
     <DashboardLayout>
-      <DashboardNavbar />
       <MDBox py={3}>
         {loading ? (
           <Box display="flex" justifyContent="center" py={5}>
             <CircularProgress />
           </Box>
-        ) : documents ? (
+        ) : document ? (
           <MDBox mb={3}>
             <MDButton
               onClick={openUpdateDialog}

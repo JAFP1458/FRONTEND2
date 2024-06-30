@@ -25,12 +25,12 @@ import {
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import DashboardLayout from 'examples/LayoutContainers/DashboardLayout';
-import DashboardNavbar from 'examples/Navbars/DashboardNavbar';
 import MDBox from 'components/MDBox';
 import MDButton from 'components/MDButton';
 import MDTypography from 'components/MDTypography';
 import DataTable from 'examples/Tables/DataTable';
 import { isValid } from 'date-fns';
+import { io } from 'socket.io-client';
 
 const Documentos = ({ token }) => {
   const [documents, setDocuments] = useState([]);
@@ -56,6 +56,13 @@ const Documentos = ({ token }) => {
   const [rowsPerPage, setRowsPerPage] = useState(20);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [documentToDelete, setDocumentToDelete] = useState(null);
+  const [shareOpen, setShareOpen] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+  const [documentToShare, setDocumentToShare] = useState(null);
+  const [shareDetails, setShareDetails] = useState({
+    recipientUserId: '',
+    permissions: '',
+  });
   const navigate = useNavigate();
   const theme = useTheme();
 
@@ -89,6 +96,37 @@ const Documentos = ({ token }) => {
     fetchDocumentTypes();
     fetchDocuments();
   }, [token, page, rowsPerPage, fetchDocuments]);
+
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      try {
+        const response = await axios.get(
+          'http://localhost:5000/documents/notifications',
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        setNotifications(response.data || []);
+      } catch (error) {
+        console.error('Error fetching notifications:', error);
+      }
+    };
+
+    fetchNotifications();
+
+    // Si estás usando WebSockets para notificaciones en tiempo real
+    const socket = io('http://localhost:5000');
+    socket.on('notification', notification => {
+      setNotifications(prevNotifications => [
+        notification,
+        ...prevNotifications,
+      ]);
+    });
+
+    return () => socket.disconnect();
+  }, [token]);
 
   const fetchDocumentTypes = async () => {
     try {
@@ -184,6 +222,56 @@ const Documentos = ({ token }) => {
     setDocumentToDelete(null);
   };
 
+  const handleOpenShareDialog = documentId => {
+    console.log('Document to share:', documentId); // Debugging
+    setDocumentToShare(documentId);
+    setShareOpen(true);
+  };
+
+  const handleCloseShareDialog = () => {
+    setShareOpen(false);
+    setDocumentToShare(null);
+    setShareDetails({ recipientUserId: '', permissions: '' });
+  };
+
+  const handleShareChange = e => {
+    const { name, value } = e.target;
+    setShareDetails(prevDetails => ({
+      ...prevDetails,
+      [name]: value,
+    }));
+  };
+
+  const handleShareDocument = async () => {
+    if (!documentToShare) {
+      alert('No se ha seleccionado ningún documento para compartir.');
+      return;
+    }
+
+    try {
+      await axios.post(
+        'http://localhost:5000/documents/share',
+        {
+          documentId: documentToShare,
+          recipientUserId: shareDetails.recipientUserId,
+          permissions: shareDetails.permissions,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      alert('Documento compartido correctamente');
+      setShareOpen(false);
+      setDocumentToShare(null);
+      setShareDetails({ recipientUserId: '', permissions: '' });
+    } catch (error) {
+      console.error('Error sharing document:', error);
+      alert('Error al compartir el documento');
+    }
+  };
+
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
@@ -199,7 +287,6 @@ const Documentos = ({ token }) => {
 
   return (
     <DashboardLayout>
-      <DashboardNavbar />
       <MDBox>
         <MDBox
           display="flex"
@@ -488,8 +575,19 @@ const Documentos = ({ token }) => {
                               onClick={() =>
                                 handleOpenConfirmDialog(document.url)
                               }
+                              style={{ marginRight: '10px' }}
                             >
                               Eliminar
+                            </MDButton>
+                            <MDButton
+                              color="secondary"
+                              size="small"
+                              onClick={() =>
+                                handleOpenShareDialog(document.documentoid)
+                              }
+                              style={{ marginRight: '10px' }}
+                            >
+                              Compartir
                             </MDButton>
                           </>
                         ),
@@ -528,6 +626,43 @@ const Documentos = ({ token }) => {
           </Button>
           <Button onClick={handleDeleteDocument} color="error">
             Eliminar
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog open={shareOpen} onClose={handleCloseShareDialog}>
+        <DialogTitle>Compartir Documento</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Introduzca el ID del destinatario y los permisos para compartir el
+            documento.
+          </DialogContentText>
+          <TextField
+            autoFocus
+            margin="dense"
+            name="recipientUserId"
+            label="ID del Destinatario"
+            type="text"
+            fullWidth
+            value={shareDetails.recipientUserId}
+            onChange={handleShareChange}
+          />
+          <TextField
+            margin="dense"
+            name="permissions"
+            label="Permisos"
+            type="text"
+            fullWidth
+            value={shareDetails.permissions}
+            onChange={handleShareChange}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseShareDialog} color="primary">
+            Cancelar
+          </Button>
+          <Button onClick={handleShareDocument} color="secondary">
+            Compartir
           </Button>
         </DialogActions>
       </Dialog>
