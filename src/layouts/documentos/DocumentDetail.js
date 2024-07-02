@@ -30,31 +30,31 @@ const DocumentDetail = ({ token }) => {
   const [updateOpen, setUpdateOpen] = useState(false);
   const [versionToDelete, setVersionToDelete] = useState(null);
 
-  useEffect(() => {
-    const fetchDocument = async () => {
-      setLoading(true);
-      try {
-        const response = await axios.get(
-          `http://localhost:5000/documents/byId/${documentId}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-        const { documento, versionesAnteriores } = response.data;
-        setDocument(documento);
-        setVersions(versionesAnteriores);
-      } catch (error) {
-        console.error('Error fetching document details:', error);
-        if (error.response && error.response.status === 401) {
-          navigate('/authentication/sign-in');
+  const fetchDocument = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.get(
+        `http://localhost:5000/documents/byId/${documentId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
-      } finally {
-        setLoading(false);
+      );
+      const { documento, versionesAnteriores } = response.data;
+      setDocument(documento);
+      setVersions(versionesAnteriores);
+    } catch (error) {
+      console.error('Error fetching document details:', error);
+      if (error.response && error.response.status === 401) {
+        navigate('/authentication/sign-in');
       }
-    };
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchDocument();
   }, [documentId, token, navigate]);
 
@@ -83,7 +83,8 @@ const DocumentDetail = ({ token }) => {
         }
       );
       alert('Documento actualizado correctamente');
-      navigate('/documents');
+      closeUpdateDialog();
+      fetchDocument(); // Vuelve a obtener los detalles del documento después de la actualización
     } catch (error) {
       console.error('Error updating document:', error);
       alert('Error al actualizar el documento');

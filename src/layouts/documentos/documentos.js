@@ -63,6 +63,13 @@ const Documentos = ({ token }) => {
     recipientUserId: '',
     permissions: '',
   });
+  const [addDialogOpen, setAddDialogOpen] = useState(false);
+  const [newDocument, setNewDocument] = useState({
+    titulo: '',
+    descripcion: '',
+    tipoDocumentoId: '',
+  });
+  const [selectedFile, setSelectedFile] = useState(null);
   const navigate = useNavigate();
   const theme = useTheme();
 
@@ -285,25 +292,73 @@ const Documentos = ({ token }) => {
     setSearchFilters(filters);
   };
 
+  const handleAddDocumentOpen = () => {
+    setAddDialogOpen(true);
+  };
+
+  const handleAddDocumentClose = () => {
+    setAddDialogOpen(false);
+    setNewDocument({ titulo: '', descripcion: '', tipoDocumentoId: '' });
+    setSelectedFile(null);
+  };
+
+  const handleAddDocumentChange = e => {
+    const { name, value } = e.target;
+    setNewDocument(prevState => ({
+      ...prevState,
+      [name]: value,
+    }));
+  };
+
+  const handleFileChange = e => {
+    setSelectedFile(e.target.files[0]);
+  };
+
+  const handleAddDocument = async () => {
+    const usuarioId = localStorage.getItem('usuarioID');
+    const formData = new FormData();
+    formData.append('titulo', newDocument.titulo);
+    formData.append('descripcion', newDocument.descripcion);
+    formData.append('tipoDocumentoId', newDocument.tipoDocumentoId);
+    formData.append('usuarioId', usuarioId);
+    formData.append('file', selectedFile);
+
+    try {
+      await axios.post('http://localhost:5000/documents', formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      alert('Documento añadido correctamente');
+      fetchDocuments();
+      handleAddDocumentClose();
+    } catch (error) {
+      console.error('Error adding document:', error);
+      alert('Error al añadir el documento');
+    }
+  };
+
   return (
     <DashboardLayout>
-      <MDBox>
+      <MDBox py={3}>
         <MDBox
           display="flex"
           justifyContent="space-between"
           alignItems="center"
           mb={3}
         >
-          <Box display="flex" alignItems="center">
-            <Button
-              variant="text"
-              color="primary"
-              onClick={handleToggleFilters}
-              startIcon={filterOpen ? <ExpandLessIcon /> : <ExpandMoreIcon />}
-            >
-              {filterOpen ? 'Ocultar Filtros' : 'Mostrar Filtros'}
-            </Button>
-          </Box>
+          <MDButton color="primary" onClick={handleAddDocumentOpen}>
+            + Agregar Documento
+          </MDButton>
+          <Button
+            variant="text"
+            color="primary"
+            onClick={handleToggleFilters}
+            startIcon={filterOpen ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+          >
+            {filterOpen ? 'Ocultar Filtros' : 'Mostrar Filtros'}
+          </Button>
         </MDBox>
 
         <Collapse in={filterOpen}>
@@ -663,6 +718,57 @@ const Documentos = ({ token }) => {
           </Button>
           <Button onClick={handleShareDocument} color="secondary">
             Compartir
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog open={addDialogOpen} onClose={handleAddDocumentClose}>
+        <DialogTitle>Agregar Documento</DialogTitle>
+        <DialogContent>
+          <TextField
+            margin="dense"
+            name="titulo"
+            label="Título"
+            type="text"
+            fullWidth
+            value={newDocument.titulo}
+            onChange={handleAddDocumentChange}
+          />
+          <TextField
+            margin="dense"
+            name="descripcion"
+            label="Descripción"
+            type="text"
+            fullWidth
+            value={newDocument.descripcion}
+            onChange={handleAddDocumentChange}
+          />
+          <FormControl fullWidth margin="dense">
+            <InputLabel>Tipo de Documento</InputLabel>
+            <Select
+              name="tipoDocumentoId"
+              value={newDocument.tipoDocumentoId}
+              onChange={handleAddDocumentChange}
+            >
+              <MenuItem value="">Seleccionar Tipo</MenuItem>
+              {documentTypes.map(type => (
+                <MenuItem
+                  key={type.tipodocumentoid}
+                  value={type.tipodocumentoid}
+                >
+                  {type.descripcion}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          <input type="file" onChange={handleFileChange} />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleAddDocumentClose} color="primary">
+            Cancelar
+          </Button>
+          <Button onClick={handleAddDocument} color="primary">
+            Agregar
           </Button>
         </DialogActions>
       </Dialog>

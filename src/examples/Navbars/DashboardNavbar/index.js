@@ -3,6 +3,7 @@ import axios from 'axios';
 import { io } from 'socket.io-client'; // Asegúrate de importar socket.io-client correctamente
 import PropTypes from 'prop-types';
 import { useLocation, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import IconButton from '@mui/material/IconButton';
@@ -39,6 +40,7 @@ function DashboardNavbar({ absolute, light, isMini, token }) {
   const [openMenu, setOpenMenu] = useState(false);
   const [notifications, setNotifications] = useState([]); // Estado para notificaciones
   const route = useLocation().pathname.split('/').slice(1);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (fixedNavbar) {
@@ -59,6 +61,30 @@ function DashboardNavbar({ absolute, light, isMini, token }) {
 
     return () => window.removeEventListener('scroll', handleTransparentNavbar);
   }, [dispatch, fixedNavbar]);
+
+  const handleViewDocument = async (documentId, notificationId) => {
+    try {
+      // Navegar al documento
+      navigate(`/documents/${documentId}`);
+
+      // Eliminar la notificación
+      await axios.delete(
+        `http://localhost:5000/documents/notifications/${notificationId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      // Actualizar el estado de notificaciones eliminando la notificación vista
+      setNotifications(
+        notifications.filter(n => n.notificacionid !== notificationId)
+      );
+    } catch (error) {
+      console.error('Error deleting notification:', error);
+    }
+  };
 
   // Fetch notificaciones desde el servidor
   useEffect(() => {
@@ -129,7 +155,12 @@ function DashboardNavbar({ absolute, light, isMini, token }) {
             key={notification.notificacionid}
             icon={<Icon>notifications</Icon>}
             title={notification.titulo}
-            onClick={() => handleViewDocument(notification.documentoid)}
+            onClick={() =>
+              handleViewDocument(
+                notification.documentoid,
+                notification.notificacionid
+              )
+            } // Pasar notificationId
           />
         ))
       )}

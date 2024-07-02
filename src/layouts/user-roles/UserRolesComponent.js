@@ -209,7 +209,7 @@ const UserRolesComponent = () => {
 
     const token = localStorage.getItem('token');
     try {
-      await axios.post('http://localhost:5000/register', newUser, {
+      await axios.post('http://localhost:5000/users/register', newUser, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -262,7 +262,7 @@ const UserRolesComponent = () => {
     const token = localStorage.getItem('token');
     try {
       await axios.delete(
-        `http://localhost:5000/delete/${userToDelete.usuarioid}`,
+        `http://localhost:5000/users/delete/${userToDelete.usuarioid}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
