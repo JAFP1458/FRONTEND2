@@ -172,63 +172,6 @@ const Documentos = ({ token }) => {
     navigate(`/documents/${documentId}`);
   };
 
-  const handleDownloadDocument = async url => {
-    try {
-      const response = await axios.post(
-        'http://localhost:5000/documents/descargar',
-        { documentUrl: url },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          responseType: 'blob',
-        }
-      );
-      const blob = new Blob([response.data], {
-        type: response.headers['content-type'],
-      });
-      const link = document.createElement('a');
-      link.href = URL.createObjectURL(blob);
-      link.download = url.split('/').pop();
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    } catch (error) {
-      console.error('Error downloading document:', error);
-      alert('Error al descargar el documento');
-    }
-  };
-
-  const handleDeleteDocument = async () => {
-    try {
-      await axios.delete('http://localhost:5000/documents/borrar', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        data: {
-          documentUrl: documentToDelete,
-        },
-      });
-      alert('Documento eliminado correctamente');
-      setConfirmOpen(false);
-      setDocumentToDelete(null);
-      fetchDocuments(); // Refrescar la lista de documentos
-    } catch (error) {
-      console.error('Error deleting document:', error);
-      alert('Error al eliminar el documento');
-    }
-  };
-
-  const handleOpenConfirmDialog = documentUrl => {
-    setDocumentToDelete(documentUrl);
-    setConfirmOpen(true);
-  };
-
-  const handleCloseConfirmDialog = () => {
-    setConfirmOpen(false);
-    setDocumentToDelete(null);
-  };
-
   const handleOpenShareDialog = documentId => {
     console.log('Document to share:', documentId); // Debugging
     setDocumentToShare(documentId);
@@ -615,26 +558,6 @@ const Documentos = ({ token }) => {
                               Ver Detalles
                             </MDButton>
                             <MDButton
-                              color="primary"
-                              size="small"
-                              onClick={() =>
-                                handleDownloadDocument(document.url)
-                              }
-                              style={{ marginRight: '10px' }}
-                            >
-                              Descargar
-                            </MDButton>
-                            <MDButton
-                              color="error"
-                              size="small"
-                              onClick={() =>
-                                handleOpenConfirmDialog(document.url)
-                              }
-                              style={{ marginRight: '10px' }}
-                            >
-                              Eliminar
-                            </MDButton>
-                            <MDButton
                               color="secondary"
                               size="small"
                               onClick={() =>
@@ -667,23 +590,6 @@ const Documentos = ({ token }) => {
           </>
         )}
       </MDBox>
-
-      <Dialog open={confirmOpen} onClose={handleCloseConfirmDialog}>
-        <DialogTitle>Confirmar Eliminación</DialogTitle>
-        <DialogContent>
-          <DialogContentText>
-            ¿Está seguro de que desea eliminar este documento?
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseConfirmDialog} color="primary">
-            Cancelar
-          </Button>
-          <Button onClick={handleDeleteDocument} color="error">
-            Eliminar
-          </Button>
-        </DialogActions>
-      </Dialog>
 
       <Dialog open={shareOpen} onClose={handleCloseShareDialog}>
         <DialogTitle>Compartir Documento</DialogTitle>

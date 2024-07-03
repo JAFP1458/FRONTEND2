@@ -22,13 +22,16 @@ import { Delete } from '@mui/icons-material';
 const DocumentDetail = ({ token }) => {
   const { documentId } = useParams();
   const navigate = useNavigate();
-  const [document, setDocument] = useState(null);
+  const [documents, setDocuments] = useState(null);
   const [versions, setVersions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [file, setFile] = useState(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [updateOpen, setUpdateOpen] = useState(false);
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+  const [auditOpen, setAuditOpen] = useState(false);
   const [versionToDelete, setVersionToDelete] = useState(null);
+  const [auditLogs, setAuditLogs] = useState([]);
 
   const fetchDocument = async () => {
     setLoading(true);
@@ -42,7 +45,7 @@ const DocumentDetail = ({ token }) => {
         }
       );
       const { documento, versionesAnteriores } = response.data;
-      setDocument(documento);
+      setDocuments(documento[0]);
       setVersions(versionesAnteriores);
     } catch (error) {
       console.error('Error fetching document details:', error);
@@ -51,6 +54,23 @@ const DocumentDetail = ({ token }) => {
       }
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchAuditLogs = async () => {
+    try {
+      const response = await axios.get(
+        `http://localhost:5000/documents/audit?documentId=${documentId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      setAuditLogs(response.data);
+      setAuditOpen(true);
+    } catch (error) {
+      console.error('Error fetching audit logs:', error);
     }
   };
 
@@ -84,14 +104,14 @@ const DocumentDetail = ({ token }) => {
       );
       alert('Documento actualizado correctamente');
       closeUpdateDialog();
-      fetchDocument(); // Vuelve a obtener los detalles del documento después de la actualización
+      fetchDocument();
     } catch (error) {
       console.error('Error updating document:', error);
       alert('Error al actualizar el documento');
     }
   };
 
-  const handleDownload = async url => {
+  const handleDownloadDocument = async url => {
     try {
       const response = await axios.post(
         'http://localhost:5000/documents/descargar',
@@ -103,18 +123,81 @@ const DocumentDetail = ({ token }) => {
           responseType: 'blob',
         }
       );
+
+      if (!response.data) {
+        throw new Error('No data received');
+      }
+
       const blob = new Blob([response.data], {
         type: response.headers['content-type'],
       });
+
+      const downloadLink = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
-      link.href = URL.createObjectURL(blob);
-      link.download = url.split('/').pop();
+      link.href = downloadLink;
+      const fileName = decodeURIComponent(url.split('/').pop());
+      link.download = fileName;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+      window.URL.revokeObjectURL(downloadLink);
     } catch (error) {
       console.error('Error downloading document:', error);
       alert('Error al descargar el documento');
+    }
+  };
+
+  const handleDownloadVersion = async url => {
+    try {
+      const response = await axios.post(
+        'http://localhost:5000/documents/descargarversion',
+        { versionUrl: url },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          responseType: 'blob',
+        }
+      );
+
+      if (!response.data) {
+        throw new Error('No data received');
+      }
+
+      const blob = new Blob([response.data], {
+        type: response.headers['content-type'],
+      });
+
+      const downloadLink = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = downloadLink;
+      const fileName = decodeURIComponent(url.split('/').pop());
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(downloadLink);
+    } catch (error) {
+      console.error('Error downloading document version:', error);
+      alert('Error al descargar la versión del documento');
+    }
+  };
+
+  const handleDeleteDocument = async () => {
+    try {
+      await axios.delete('http://localhost:5000/documents/borrar', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        data: {
+          documentUrl: documents.url,
+        },
+      });
+      alert('Documento eliminado correctamente');
+      navigate('/documents');
+    } catch (error) {
+      console.error('Error deleting document:', error);
+      alert('Error al eliminar el documento');
     }
   };
 
@@ -159,6 +242,14 @@ const DocumentDetail = ({ token }) => {
     setFile(null);
   };
 
+  const openConfirmDeleteDocumentDialog = () => {
+    setConfirmDeleteOpen(true);
+  };
+
+  const closeConfirmDeleteDocumentDialog = () => {
+    setConfirmDeleteOpen(false);
+  };
+
   return (
     <DashboardLayout>
       <MDBox py={3}>
@@ -166,60 +257,88 @@ const DocumentDetail = ({ token }) => {
           <Box display="flex" justifyContent="center" py={5}>
             <CircularProgress />
           </Box>
-        ) : document ? (
-          <MDBox mb={3}>
-            <MDButton
-              onClick={openUpdateDialog}
-              color="primary"
-              variant="contained"
-              fullWidth
-            >
-              Actualizar Documento
-            </MDButton>
-          </MDBox>
+        ) : documents ? (
+          <>
+            <MDBox mb={3}>
+              <MDTypography variant="h4" component="h1" gutterBottom>
+                Detalle del documento: {documents.titulo}
+              </MDTypography>
+            </MDBox>
+            <MDBox mb={3}>
+              <MDButton
+                onClick={openUpdateDialog}
+                color="primary"
+                variant="contained"
+                fullWidth
+              >
+                Actualizar Documento
+              </MDButton>
+            </MDBox>
+            <MDBox mb={3}>
+              <MDButton
+                color="primary"
+                size="small"
+                onClick={() => handleDownloadDocument(documents.url)}
+                style={{ marginRight: '10px' }}
+              >
+                Descargar
+              </MDButton>
+              <MDButton
+                color="error"
+                size="small"
+                onClick={openConfirmDeleteDocumentDialog}
+                style={{ marginRight: '10px' }}
+              >
+                Eliminar
+              </MDButton>
+              <MDButton color="info" size="small" onClick={fetchAuditLogs}>
+                Ver Historial
+              </MDButton>
+            </MDBox>
+            <MDBox>
+              <MDTypography variant="h6" component="h2" gutterBottom>
+                Versiones Anteriores
+              </MDTypography>
+              {versions.length > 0 ? (
+                <MDBox>
+                  {versions.map(version => (
+                    <MDBox
+                      key={version.versiondocumentoid}
+                      display="flex"
+                      alignItems="center"
+                      mb={1}
+                    >
+                      <MDTypography variant="body2" mr={2}>
+                        {new Date(version.fechacreacion).toLocaleString()}
+                      </MDTypography>
+                      <MDButton
+                        color="info"
+                        onClick={() => handleDownloadVersion(version.url_s3)}
+                        style={{ marginRight: '10px' }}
+                      >
+                        Descargar Versión
+                      </MDButton>
+                      <IconButton
+                        color="error"
+                        onClick={() =>
+                          openConfirmDialog(version.versiondocumentoid)
+                        }
+                      >
+                        <Delete />
+                      </IconButton>
+                    </MDBox>
+                  ))}
+                </MDBox>
+              ) : (
+                <MDTypography>No hay versiones anteriores</MDTypography>
+              )}
+            </MDBox>
+          </>
         ) : (
           <MDTypography variant="h6" color="error">
             No se encontró el documento
           </MDTypography>
         )}
-        <MDBox>
-          <MDTypography variant="h6" component="h2" gutterBottom>
-            Versiones Anteriores
-          </MDTypography>
-          {versions.length > 0 ? (
-            <MDBox>
-              {versions.map(version => (
-                <MDBox
-                  key={version.versiondocumentoid}
-                  display="flex"
-                  alignItems="center"
-                  mb={1}
-                >
-                  <MDTypography variant="body2" mr={2}>
-                    {new Date(version.fechacreacion).toLocaleString()}
-                  </MDTypography>
-                  <MDButton
-                    color="info"
-                    onClick={() => handleDownload(version.url_s3)}
-                    style={{ marginRight: '10px' }}
-                  >
-                    Descargar
-                  </MDButton>
-                  <IconButton
-                    color="error"
-                    onClick={() =>
-                      openConfirmDialog(version.versiondocumentoid)
-                    }
-                  >
-                    <Delete />
-                  </IconButton>
-                </MDBox>
-              ))}
-            </MDBox>
-          ) : (
-            <MDTypography>No hay versiones anteriores</MDTypography>
-          )}
-        </MDBox>
       </MDBox>
 
       <Dialog open={confirmOpen} onClose={closeConfirmDialog}>
@@ -230,12 +349,12 @@ const DocumentDetail = ({ token }) => {
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <MDButton onClick={closeConfirmDialog} color="primary">
+          <Button onClick={closeConfirmDialog} color="primary">
             Cancelar
-          </MDButton>
-          <MDButton onClick={handleDeleteVersion} color="error">
+          </Button>
+          <Button onClick={handleDeleteVersion} color="error">
             Eliminar
-          </MDButton>
+          </Button>
         </DialogActions>
       </Dialog>
 
@@ -245,12 +364,50 @@ const DocumentDetail = ({ token }) => {
           <input type="file" onChange={handleFileChange} />
         </DialogContent>
         <DialogActions>
-          <MDButton onClick={closeUpdateDialog} color="primary">
+          <Button onClick={closeUpdateDialog} color="primary">
             Cancelar
-          </MDButton>
-          <MDButton onClick={handleUpdate} color="primary">
+          </Button>
+          <Button onClick={handleUpdate} color="primary">
             Actualizar
-          </MDButton>
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog
+        open={confirmDeleteOpen}
+        onClose={closeConfirmDeleteDocumentDialog}
+      >
+        <DialogTitle>Confirmar Eliminación del Documento</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            ¿Está seguro de que desea eliminar este documento?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={closeConfirmDeleteDocumentDialog} color="primary">
+            Cancelar
+          </Button>
+          <Button onClick={handleDeleteDocument} color="error">
+            Eliminar
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog open={auditOpen} onClose={() => setAuditOpen(false)}>
+        <DialogTitle>Historial de Auditoría</DialogTitle>
+        <DialogContent>
+          <MDBox>
+            {auditLogs.map((log, index) => (
+              <MDTypography key={index} variant="body2" mb={1}>
+                {log.detalles}
+              </MDTypography>
+            ))}
+          </MDBox>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setAuditOpen(false)} color="primary">
+            Cerrar
+          </Button>
         </DialogActions>
       </Dialog>
     </DashboardLayout>
