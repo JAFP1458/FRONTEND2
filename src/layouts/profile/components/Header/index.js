@@ -2,18 +2,13 @@ import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import Card from '@mui/material/Card';
 import Grid from '@mui/material/Grid';
-import AppBar from '@mui/material/AppBar';
-import Tabs from '@mui/material/Tabs';
-import Tab from '@mui/material/Tab';
 import Icon from '@mui/material/Icon';
+import Avatar from '@mui/material/Avatar';
 import MDBox from 'components/MDBox';
 import MDTypography from 'components/MDTypography';
-import MDAvatar from 'components/MDAvatar';
 import breakpoints from 'assets/theme/base/breakpoints';
 import backgroundImage from 'assets/images/bg-profile.jpeg';
 import axios from 'axios';
-
-const defaultProfileImage = 'assets/images/team-1.jpg'; // Reemplaza con la URL de una imagen por defecto
 
 function Header({ children }) {
   const [tabsOrientation, setTabsOrientation] = useState('horizontal');
@@ -64,7 +59,7 @@ function Header({ children }) {
         display="flex"
         alignItems="center"
         position="relative"
-        minHeight="18.75rem"
+        minHeight="25rem" // Aumentar la altura mínima
         borderRadius="xl"
         sx={{
           backgroundImage: ({
@@ -76,7 +71,7 @@ function Header({ children }) {
               rgba(gradients.info.state, 0.6)
             )}, url(${backgroundImage})`,
           backgroundSize: 'cover',
-          backgroundPosition: '50%',
+          backgroundPosition: 'center',
           overflow: 'hidden',
         }}
       />
@@ -87,61 +82,33 @@ function Header({ children }) {
           mx: 3,
           py: 2,
           px: 2,
+          width: '90%', // Aumentar el ancho del Card
+          mx: 'auto', // Centrar el Card horizontalmente
         }}
       >
-        <Grid container spacing={3} alignItems="center">
+        <Grid container spacing={3} alignItems="center" justifyContent="center">
           <Grid item>
-            <MDAvatar
-              src={userData.profileImage || defaultProfileImage}
-              alt="profile-image"
-              size="xl"
-              shadow="sm"
-              sx={{ borderRadius: '50%', objectFit: 'cover' }}
-            />
+            <Avatar
+              alt="default-profile-icon"
+              sx={{ width: 80, height: 80, borderRadius: '50%' }} // Aumentar el tamaño del Avatar
+            >
+              <Icon fontSize="large">person</Icon>{' '}
+              {/* Aumentar el tamaño del icono */}
+            </Avatar>
           </Grid>
           <Grid item>
-            <MDBox height="100%" mt={0.5} lineHeight={1}>
-              <MDTypography variant="h5" fontWeight="medium">
+            <MDBox height="100%" mt={1} lineHeight={1}>
+              <MDTypography variant="h4" fontWeight="medium">
+                {' '}
+                {/* Aumentar el tamaño del texto */}
                 {userData.nombre || 'N/A'}
               </MDTypography>
-              <MDTypography variant="button" color="text" fontWeight="regular">
+              <MDTypography variant="h6" color="text" fontWeight="regular">
+                {' '}
+                {/* Aumentar el tamaño del texto */}
                 {userData.correoelectronico || 'N/A'}
               </MDTypography>
             </MDBox>
-          </Grid>
-          <Grid item xs={12} md={6} lg={4} sx={{ ml: 'auto' }}>
-            <AppBar position="static">
-              <Tabs
-                orientation={tabsOrientation}
-                value={tabValue}
-                onChange={handleSetTabValue}
-              >
-                <Tab
-                  label="App"
-                  icon={
-                    <Icon fontSize="small" sx={{ mt: -0.25 }}>
-                      home
-                    </Icon>
-                  }
-                />
-                <Tab
-                  label="Message"
-                  icon={
-                    <Icon fontSize="small" sx={{ mt: -0.25 }}>
-                      email
-                    </Icon>
-                  }
-                />
-                <Tab
-                  label="Settings"
-                  icon={
-                    <Icon fontSize="small" sx={{ mt: -0.25 }}>
-                      settings
-                    </Icon>
-                  }
-                />
-              </Tabs>
-            </AppBar>
           </Grid>
         </Grid>
         {children}

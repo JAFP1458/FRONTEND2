@@ -21,11 +21,6 @@ import MDTypography from 'components/MDTypography';
 import MDAvatar from 'components/MDAvatar';
 import MDBadge from 'components/MDBadge';
 
-// Images
-import team2 from 'assets/images/team-2.jpg';
-import team3 from 'assets/images/team-3.jpg';
-import team4 from 'assets/images/team-4.jpg';
-
 export default function data() {
   const Author = ({ image, name, email }) => (
     <MDBox display="flex" alignItems="center" lineHeight={1}>
@@ -66,7 +61,7 @@ export default function data() {
       {
         author: (
           <Author
-            image={team2}
+            image={null}
             name="John Michael"
             email="john@creative-tim.com"
           />
@@ -108,7 +103,7 @@ export default function data() {
       {
         author: (
           <Author
-            image={team3}
+            image={null}
             name="Alexa Liras"
             email="alexa@creative-tim.com"
           />
@@ -150,7 +145,7 @@ export default function data() {
       {
         author: (
           <Author
-            image={team4}
+            image={null}
             name="Laurent Perrier"
             email="laurent@creative-tim.com"
           />
@@ -192,7 +187,7 @@ export default function data() {
       {
         author: (
           <Author
-            image={team3}
+            image={null}
             name="Michael Levi"
             email="michael@creative-tim.com"
           />
@@ -234,7 +229,7 @@ export default function data() {
       {
         author: (
           <Author
-            image={team3}
+            image={null}
             name="Richard Gran"
             email="richard@creative-tim.com"
           />
@@ -276,7 +271,7 @@ export default function data() {
       {
         author: (
           <Author
-            image={team4}
+            image={null}
             name="Miriam Eric"
             email="miriam@creative-tim.com"
           />
