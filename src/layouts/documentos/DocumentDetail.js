@@ -16,6 +16,9 @@ import {
   DialogTitle,
   Button,
   IconButton,
+  Card,
+  CardContent,
+  Grid,
 } from '@mui/material';
 import { Delete } from '@mui/icons-material';
 
@@ -259,80 +262,96 @@ const DocumentDetail = ({ token }) => {
           </Box>
         ) : documents ? (
           <>
-            <MDBox mb={3}>
-              <MDTypography variant="h4" component="h1" gutterBottom>
-                Detalle del documento: {documents.titulo}
-              </MDTypography>
-            </MDBox>
-            <MDBox mb={3}>
-              <MDButton
-                onClick={openUpdateDialog}
-                color="primary"
-                variant="contained"
-                fullWidth
-              >
-                Actualizar Documento
-              </MDButton>
-            </MDBox>
-            <MDBox mb={3}>
-              <MDButton
-                color="primary"
-                size="small"
-                onClick={() => handleDownloadDocument(documents.url)}
-                style={{ marginRight: '10px' }}
-              >
-                Descargar
-              </MDButton>
-              <MDButton
-                color="error"
-                size="small"
-                onClick={openConfirmDeleteDocumentDialog}
-                style={{ marginRight: '10px' }}
-              >
-                Eliminar
-              </MDButton>
-              <MDButton color="info" size="small" onClick={fetchAuditLogs}>
-                Ver Historial
-              </MDButton>
-            </MDBox>
-            <MDBox>
-              <MDTypography variant="h6" component="h2" gutterBottom>
-                Versiones Anteriores
-              </MDTypography>
-              {versions.length > 0 ? (
-                <MDBox>
-                  {versions.map(version => (
-                    <MDBox
-                      key={version.versiondocumentoid}
-                      display="flex"
-                      alignItems="center"
-                      mb={1}
+            <Card variant="outlined" sx={{ mb: 3 }}>
+              <CardContent>
+                <MDTypography variant="h4" component="h1" gutterBottom>
+                  Detalle del documento: {documents.titulo}
+                </MDTypography>
+                <Grid container spacing={2} justifyContent="center" mt={2}>
+                  <Grid item xs={12} sm={6} md={3}>
+                    <MDButton
+                      onClick={openUpdateDialog}
+                      color="primary"
+                      variant="contained"
+                      fullWidth
                     >
-                      <MDTypography variant="body2" mr={2}>
-                        {new Date(version.fechacreacion).toLocaleString()}
-                      </MDTypography>
-                      <MDButton
-                        color="info"
-                        onClick={() => handleDownloadVersion(version.url_s3)}
-                        style={{ marginRight: '10px' }}
+                      Actualizar Documento
+                    </MDButton>
+                  </Grid>
+                  <Grid item xs={12} sm={6} md={3}>
+                    <MDButton
+                      color="primary"
+                      size="small"
+                      fullWidth
+                      onClick={() => handleDownloadDocument(documents.url)}
+                    >
+                      Descargar
+                    </MDButton>
+                  </Grid>
+                  <Grid item xs={12} sm={6} md={3}>
+                    <MDButton
+                      color="error"
+                      size="small"
+                      fullWidth
+                      onClick={openConfirmDeleteDocumentDialog}
+                    >
+                      Eliminar
+                    </MDButton>
+                  </Grid>
+                  <Grid item xs={12} sm={6} md={3}>
+                    <MDButton
+                      color="info"
+                      size="small"
+                      fullWidth
+                      onClick={fetchAuditLogs}
+                    >
+                      Ver Historial
+                    </MDButton>
+                  </Grid>
+                </Grid>
+              </CardContent>
+            </Card>
+
+            <Card variant="outlined">
+              <CardContent>
+                <MDTypography variant="h6" component="h2" gutterBottom>
+                  Versiones Anteriores
+                </MDTypography>
+                {versions.length > 0 ? (
+                  <MDBox>
+                    {versions.map(version => (
+                      <MDBox
+                        key={version.versiondocumentoid}
+                        display="flex"
+                        alignItems="center"
+                        mb={1}
                       >
-                        Descargar Versión
-                      </MDButton>
-                      <IconButton
-                        color="error"
-                        onClick={() =>
-                          openConfirmDialog(version.versiondocumentoid)
-                        }
-                      >
-                        <Delete />
-                      </IconButton>
-                    </MDBox>
-                  ))}
-                </MDBox>
-              ) : (
-                <MDTypography>No hay versiones anteriores</MDTypography>
-              )}
-            </MDBox>
+                        <MDTypography variant="body2" mr={2}>
+                          {new Date(version.fechacreacion).toLocaleString()}
+                        </MDTypography>
+                        <MDButton
+                          color="info"
+                          onClick={() => handleDownloadVersion(version.url_s3)}
+                          style={{ marginRight: '10px' }}
+                        >
+                          Descargar Versión
+                        </MDButton>
+                        <IconButton
+                          color="error"
+                          onClick={() =>
+                            openConfirmDialog(version.versiondocumentoid)
+                          }
+                        >
+                          <Delete />
+                        </IconButton>
+                      </MDBox>
+                    ))}
+                  </MDBox>
+                ) : (
+                  <MDTypography>No hay versiones anteriores</MDTypography>
+                )}
+              </CardContent>
+            </Card>
           </>
         ) : (
           <MDTypography variant="h6" color="error">

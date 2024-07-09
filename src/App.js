@@ -25,8 +25,8 @@ import {
   setMiniSidenav,
   setOpenConfigurator,
 } from 'context';
-import brandWhite from 'assets/images/logo-ct.png';
-import brandDark from 'assets/images/logo-ct-dark.png';
+import brandWhite from 'assets/images/Logo-senescyt.png';
+import brandDark from 'assets/images/Logo-senescyt.png';
 import DashboardNavbar from 'examples/Navbars/DashboardNavbar'; // Asegúrate de importar esto
 
 export default function App() {
@@ -147,7 +147,7 @@ export default function App() {
                   ? brandDark
                   : brandWhite
               }
-              brandName="Material Dashboard 2"
+              brandName="G.D. SENESCYT"
               routes={routes}
               onMouseEnter={handleOnMouseEnter}
               onMouseLeave={handleOnMouseLeave}
@@ -176,7 +176,7 @@ export default function App() {
                 ? brandDark
                 : brandWhite
             }
-            brandName="Material Dashboard 2"
+            brandName="G.D. SENESCYT"
             routes={routes}
             onMouseEnter={handleOnMouseEnter}
             onMouseLeave={handleOnMouseLeave}

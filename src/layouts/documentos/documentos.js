@@ -70,6 +70,8 @@ const Documentos = ({ token }) => {
     tipoDocumentoId: '',
   });
   const [selectedFile, setSelectedFile] = useState(null);
+  const [userEmails, setUserEmails] = useState([]); // Nuevo estado para correos electrónicos
+
   const navigate = useNavigate();
   const theme = useTheme();
 
@@ -123,7 +125,6 @@ const Documentos = ({ token }) => {
 
     fetchNotifications();
 
-    // Si estás usando WebSockets para notificaciones en tiempo real
     const socket = io('http://localhost:5000');
     socket.on('notification', notification => {
       setNotifications(prevNotifications => [
@@ -151,6 +152,23 @@ const Documentos = ({ token }) => {
     }
   };
 
+  const fetchUserEmails = async () => {
+    try {
+      const response = await axios.get('http://localhost:5000/users', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data.map(user => ({
+        id: user.usuarioid,
+        email: user.correoelectronico,
+      }));
+    } catch (error) {
+      console.error('Error fetching user emails:', error);
+      return [];
+    }
+  };
+
   const handleFilterChange = e => {
     const { name, value } = e.target;
     setFilters(prevFilters => ({
@@ -172,9 +190,11 @@ const Documentos = ({ token }) => {
     navigate(`/documents/${documentId}`);
   };
 
-  const handleOpenShareDialog = documentId => {
-    console.log('Document to share:', documentId); // Debugging
+  const handleOpenShareDialog = async documentId => {
+    console.log('Document to share:', documentId);
     setDocumentToShare(documentId);
+    const emails = await fetchUserEmails();
+    setUserEmails(emails);
     setShareOpen(true);
   };
 
@@ -595,28 +615,22 @@ const Documentos = ({ token }) => {
         <DialogTitle>Compartir Documento</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Introduzca el ID del destinatario y los permisos para compartir el
-            documento.
+            Seleccione el correo electrónico del destinatario.
           </DialogContentText>
-          <TextField
-            autoFocus
-            margin="dense"
-            name="recipientUserId"
-            label="ID del Destinatario"
-            type="text"
-            fullWidth
-            value={shareDetails.recipientUserId}
-            onChange={handleShareChange}
-          />
-          <TextField
-            margin="dense"
-            name="permissions"
-            label="Permisos"
-            type="text"
-            fullWidth
-            value={shareDetails.permissions}
-            onChange={handleShareChange}
-          />
+          <FormControl fullWidth margin="dense">
+            <InputLabel>Correo del Destinatario</InputLabel>
+            <Select
+              name="recipientUserId"
+              value={shareDetails.recipientUserId}
+              onChange={handleShareChange}
+            >
+              {userEmails.map(user => (
+                <MenuItem key={user.id} value={user.id}>
+                  {user.email}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseShareDialog} color="primary">
