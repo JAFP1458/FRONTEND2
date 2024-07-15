@@ -1,11 +1,9 @@
+import UserRolesComponent from 'layouts/user-roles/UserRolesComponent';
 import Profile from 'layouts/profile';
 import SignIn from 'layouts/authentication/sign-in';
-import UserRolesComponent from 'layouts/user-roles/UserRolesComponent';
-import Documentos from 'layouts/documentos/documentos';
-import DocumentDetail from 'layouts/documentos/DocumentDetail';
 import Icon from '@mui/material/Icon';
 
-const routes = [
+const adminRoutes = [
   {
     type: 'collapse',
     name: 'User Roles',
@@ -13,22 +11,6 @@ const routes = [
     icon: <Icon fontSize="small">people</Icon>,
     route: '/user-roles',
     component: UserRolesComponent,
-  },
-  {
-    type: 'collapse',
-    name: 'Documentos',
-    key: 'documentos',
-    icon: <Icon fontSize="small">description</Icon>,
-    route: '/documentos',
-    component: Documentos,
-  },
-  {
-    type: 'collapse',
-    name: 'Detalle de Documento',
-    key: 'document-detail',
-    route: '/documents/:documentId',
-    icon: <Icon fontSize="small">description</Icon>,
-    component: DocumentDetail,
   },
   {
     type: 'collapse',
@@ -48,4 +30,4 @@ const routes = [
   },
 ];
 
-export default routes;
+export default adminRoutes;

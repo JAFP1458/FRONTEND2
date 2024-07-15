@@ -251,22 +251,6 @@ function Configurator() {
             >
               Negro
             </MDButton>
-            <MDBox sx={{ mx: 1, width: '8rem', minWidth: '8rem' }}>
-              <MDButton
-                color="dark"
-                variant="gradient"
-                onClick={handleTransparentSidenav}
-                disabled={disabled}
-                fullWidth
-                sx={
-                  transparentSidenav && !whiteSidenav
-                    ? sidenavTypeActiveButtonStyles
-                    : sidenavTypeButtonsStyles
-                }
-              >
-                Transparente
-              </MDButton>
-            </MDBox>
             <MDButton
               color="dark"
               variant="gradient"

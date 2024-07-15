@@ -14,6 +14,8 @@ import {
   TextField,
   CircularProgress,
   MenuItem,
+  Switch,
+  FormControlLabel,
 } from '@mui/material';
 import { FormGroup, Label } from 'reactstrap';
 import PropTypes from 'prop-types';
@@ -31,12 +33,10 @@ const UserRolesComponent = () => {
   const [errors, setErrors] = useState({});
   const [updateErrors, setUpdateErrors] = useState({});
   const [selectedUser, setSelectedUser] = useState(null);
-  const [userToDelete, setUserToDelete] = useState(null);
   const [newRole, setNewRole] = useState({ nombreRol: '' });
   const [searchQuery, setSearchQuery] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
   const [updateModalOpen, setUpdateModalOpen] = useState(false);
-  const [deleteConfirmModalOpen, setDeleteConfirmModalOpen] = useState(false);
   const [hoveredRow, setHoveredRow] = useState(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
@@ -253,16 +253,13 @@ const UserRolesComponent = () => {
     }
   };
 
-  const confirmDeleteUser = user => {
-    setUserToDelete(user);
-    setDeleteConfirmModalOpen(true);
-  };
-
-  const deleteUser = async () => {
+  const toggleUserStatus = async user => {
     const token = localStorage.getItem('token');
+    const newStatus = !user.estado;
     try {
-      await axios.delete(
-        `http://localhost:5000/users/delete/${userToDelete.usuarioid}`,
+      await axios.put(
+        `http://localhost:5000/users/${user.usuarioid}/status`,
+        { estado: newStatus },
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -271,10 +268,8 @@ const UserRolesComponent = () => {
       );
 
       fetchUsers();
-      fetchAssignments();
-      setDeleteConfirmModalOpen(false);
     } catch (error) {
-      console.error('Error deleting user and role:', error);
+      console.error('Error updating user status:', error);
     }
   };
 
@@ -284,10 +279,6 @@ const UserRolesComponent = () => {
 
   const toggleUpdateModal = () => {
     setUpdateModalOpen(!updateModalOpen);
-  };
-
-  const toggleDeleteConfirmModal = () => {
-    setDeleteConfirmModalOpen(!deleteConfirmModalOpen);
   };
 
   const openUpdateModal = user => {
@@ -350,37 +341,40 @@ const UserRolesComponent = () => {
           <DataTable
             table={{
               columns: [
-                { Header: 'Nombre', accessor: 'nombre', width: '25%' },
+                { Header: 'Nombre', accessor: 'nombre', width: '20%' },
                 {
                   Header: 'Correo Electrónico',
                   accessor: 'correoElectronico',
-                  width: '35%',
+                  width: '25%',
                 },
                 { Header: 'Rol', accessor: 'rol', width: '20%' },
+                { Header: 'Estado', accessor: 'estado', width: '15%' },
                 { Header: '', accessor: 'action', width: '20%' },
               ],
               rows: filteredUsers.map(user => ({
                 nombre: user.nombre,
                 correoElectronico: user.correoelectronico,
                 rol: getRoleName(user.usuarioid),
+                estado: (
+                  <FormControlLabel
+                    control={
+                      <Switch
+                        checked={user.estado}
+                        onChange={() => toggleUserStatus(user)}
+                        color="primary"
+                      />
+                    }
+                    label={user.estado ? 'Activo' : 'Inactivo'}
+                  />
+                ),
                 action: (
-                  <>
-                    <MDButton
-                      color="info"
-                      size="small"
-                      onClick={() => openUpdateModal(user)}
-                      style={{ marginRight: '10px' }}
-                    >
-                      Editar
-                    </MDButton>
-                    <MDButton
-                      color="error"
-                      size="small"
-                      onClick={() => confirmDeleteUser(user)}
-                    >
-                      Eliminar
-                    </MDButton>
-                  </>
+                  <MDButton
+                    color="info"
+                    size="small"
+                    onClick={() => openUpdateModal(user)}
+                  >
+                    Editar
+                  </MDButton>
                 ),
               })),
             }}
@@ -542,19 +536,6 @@ const UserRolesComponent = () => {
           </DialogActions>
         </Dialog>
       )}
-      <Dialog open={deleteConfirmModalOpen} onClose={toggleDeleteConfirmModal}>
-        <DialogTitle>Confirmar Eliminación</DialogTitle>
-        <DialogContent>
-          ¿Está seguro que desea eliminar al usuario{' '}
-          {userToDelete ? userToDelete.nombre : ''}?
-        </DialogContent>
-        <DialogActions>
-          <MDButton color="error" onClick={deleteUser}>
-            Eliminar
-          </MDButton>
-          <MDButton onClick={toggleDeleteConfirmModal}>Cancelar</MDButton>
-        </DialogActions>
-      </Dialog>
     </DashboardLayout>
   );
 };

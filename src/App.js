@@ -19,7 +19,8 @@ import themeDarkRTL from 'assets/theme-dark/theme-rtl';
 import rtlPlugin from 'stylis-plugin-rtl';
 import { CacheProvider } from '@emotion/react';
 import createCache from '@emotion/cache';
-import routes from 'routes';
+import adminRoutes from './adminRoutes';
+import userRoutes from './userRoutes';
 import {
   useMaterialUIController,
   setMiniSidenav,
@@ -27,7 +28,8 @@ import {
 } from 'context';
 import brandWhite from 'assets/images/Logo-senescyt.png';
 import brandDark from 'assets/images/Logo-senescyt.png';
-import DashboardNavbar from 'examples/Navbars/DashboardNavbar'; // Asegúrate de importar esto
+import DashboardNavbar from 'examples/Navbars/DashboardNavbar';
+import Basic from '../src/layouts/authentication/sign-in'; // Asegúrate de importar esto
 
 export default function App() {
   const [controller, dispatch] = useMaterialUIController();
@@ -45,6 +47,7 @@ export default function App() {
   const [rtlCache, setRtlCache] = useState(null);
   const { pathname } = useLocation();
   const [token, setToken] = useState(localStorage.getItem('token') || null);
+  const [role, setRole] = useState(localStorage.getItem('userRole') || null);
 
   useEffect(() => {
     const cacheRtl = createCache({
@@ -62,6 +65,14 @@ export default function App() {
       localStorage.removeItem('token');
     }
   }, [token]);
+
+  useEffect(() => {
+    if (role) {
+      localStorage.setItem('userRole', role);
+    } else {
+      localStorage.removeItem('userRole');
+    }
+  }, [role]);
 
   const handleOnMouseEnter = () => {
     if (miniSidenav && !onMouseEnter) {
@@ -101,7 +112,9 @@ export default function App() {
           <Route
             exact
             path={route.route}
-            element={<Component token={token} setToken={setToken} />}
+            element={
+              <Component token={token} setToken={setToken} setRole={setRole} />
+            }
             key={route.key}
           />
         );
@@ -134,6 +147,12 @@ export default function App() {
     </MDBox>
   );
 
+  console.log('Role:', role);
+  console.log(
+    'Routes for the role:',
+    role === 'Gestor' ? adminRoutes : userRoutes
+  );
+
   return direction === 'rtl' ? (
     <CacheProvider value={rtlCache}>
       <ThemeProvider theme={darkMode ? themeDarkRTL : themeRTL}>
@@ -148,7 +167,7 @@ export default function App() {
                   : brandWhite
               }
               brandName="G.D. SENESCYT"
-              routes={routes}
+              routes={role === 'Gestor' ? adminRoutes : userRoutes}
               onMouseEnter={handleOnMouseEnter}
               onMouseLeave={handleOnMouseLeave}
             />
@@ -158,7 +177,7 @@ export default function App() {
         )}
         {layout === 'vr' && <Configurator />}
         <Routes>
-          {getRoutes(routes)}
+          {getRoutes(role === 'Gestor' ? adminRoutes : userRoutes)}
           <Route path="/" element={<Navigate to="/authentication/sign-in" />} />
           <Route path="*" element={<Navigate to="/authentication/sign-in" />} />
         </Routes>
@@ -177,19 +196,18 @@ export default function App() {
                 : brandWhite
             }
             brandName="G.D. SENESCYT"
-            routes={routes}
+            routes={role === 'Gestor' ? adminRoutes : userRoutes}
             onMouseEnter={handleOnMouseEnter}
             onMouseLeave={handleOnMouseLeave}
           />
           <Configurator />
           {configsButton}
           <DashboardNavbar token={token} />{' '}
-          {/* Asegúrate de que esto esté importado */}
         </>
       )}
       {layout === 'vr' && <Configurator />}
       <Routes>
-        {getRoutes(routes)}
+        {getRoutes(role === 'Gestor' ? adminRoutes : userRoutes)}
         <Route path="/" element={<Navigate to="/authentication/sign-in" />} />
         <Route path="*" element={<Navigate to="/authentication/sign-in" />} />
       </Routes>

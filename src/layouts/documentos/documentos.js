@@ -35,11 +35,13 @@ import { io } from 'socket.io-client';
 const Documentos = ({ token }) => {
   const [documents, setDocuments] = useState([]);
   const [documentTypes, setDocumentTypes] = useState([]);
+  const [areas, setAreas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState({
     titulo: '',
     usuarioCorreo: '',
     tipoDocumentoId: '',
+    areaId: '',
     fechaInicio: '',
     fechaFin: '',
   });
@@ -48,6 +50,7 @@ const Documentos = ({ token }) => {
     titulo: '',
     usuarioCorreo: '',
     tipoDocumentoId: '',
+    areaId: '',
     fechaInicio: '',
     fechaFin: '',
   });
@@ -68,6 +71,7 @@ const Documentos = ({ token }) => {
     titulo: '',
     descripcion: '',
     tipoDocumentoId: '',
+    areaId: '',
   });
   const [selectedFile, setSelectedFile] = useState(null);
   const [userEmails, setUserEmails] = useState([]); // Nuevo estado para correos electrónicos
@@ -103,6 +107,7 @@ const Documentos = ({ token }) => {
 
   useEffect(() => {
     fetchDocumentTypes();
+    fetchAreas();
     fetchDocuments();
   }, [token, page, rowsPerPage, fetchDocuments]);
 
@@ -149,6 +154,22 @@ const Documentos = ({ token }) => {
       setDocumentTypes(response.data || []);
     } catch (error) {
       console.error('Error fetching document types:', error);
+    }
+  };
+
+  const fetchAreas = async () => {
+    try {
+      const response = await axios.get(
+        'http://localhost:5000/documents/areas',
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      setAreas(response.data || []);
+    } catch (error) {
+      console.error('Error fetching areas:', error);
     }
   };
 
@@ -261,7 +282,12 @@ const Documentos = ({ token }) => {
 
   const handleAddDocumentClose = () => {
     setAddDialogOpen(false);
-    setNewDocument({ titulo: '', descripcion: '', tipoDocumentoId: '' });
+    setNewDocument({
+      titulo: '',
+      descripcion: '',
+      tipoDocumentoId: '',
+      areaId: '',
+    });
     setSelectedFile(null);
   };
 
@@ -283,6 +309,7 @@ const Documentos = ({ token }) => {
     formData.append('titulo', newDocument.titulo);
     formData.append('descripcion', newDocument.descripcion);
     formData.append('tipoDocumentoId', newDocument.tipoDocumentoId);
+    formData.append('areaId', newDocument.areaId);
     formData.append('usuarioId', usuarioId);
     formData.append('file', selectedFile);
 
@@ -443,6 +470,51 @@ const Documentos = ({ token }) => {
                   </Select>
                 </FormControl>
               </Grid>
+              <Grid item xs={12} sm={6} md={2}>
+                <FormControl
+                  fullWidth
+                  variant="outlined"
+                  sx={{ color: theme.palette.text.primary }}
+                >
+                  <InputLabel
+                    style={{ color: theme.palette.text.primary }}
+                    sx={{
+                      '&.Mui-focused': {
+                        color: theme.palette.primary.main,
+                      },
+                    }}
+                  >
+                    Área
+                  </InputLabel>
+                  <Select
+                    label="Área"
+                    name="areaId"
+                    value={filters.areaId}
+                    onChange={handleFilterChange}
+                    style={{ color: theme.palette.text.primary }}
+                    sx={{
+                      '& .MuiOutlinedInput-root': {
+                        '& fieldset': {
+                          borderColor: theme.palette.text.primary,
+                        },
+                        '&:hover fieldset': {
+                          borderColor: theme.palette.primary.main,
+                        },
+                        '&.Mui-focused fieldset': {
+                          borderColor: theme.palette.primary.main,
+                        },
+                      },
+                    }}
+                  >
+                    <MenuItem value="">Seleccionar Área</MenuItem>
+                    {areas.map(area => (
+                      <MenuItem key={area.areaid} value={area.areaid}>
+                        {area.descripcion}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Grid>
               <Grid item xs={12} sm={6} md={3}>
                 <TextField
                   label="Fecha Inicio"
@@ -548,6 +620,11 @@ const Documentos = ({ token }) => {
                     width: '20%',
                   },
                   {
+                    Header: 'Área',
+                    accessor: 'areanombre',
+                    width: '10%',
+                  },
+                  {
                     Header: 'Fecha de Creación',
                     accessor: 'fechacreacion',
                     width: '10%',
@@ -562,6 +639,7 @@ const Documentos = ({ token }) => {
                         descripcion: document.descripcion,
                         usuariocorreo: document.usuariocorreo,
                         tipodocumentonombre: document.tipodocumentonombre,
+                        areanombre: document.areanombre,
                         fechacreacion: isValid(date)
                           ? date.toLocaleString()
                           : 'Fecha no válida',
@@ -677,6 +755,21 @@ const Documentos = ({ token }) => {
                   value={type.tipodocumentoid}
                 >
                   {type.descripcion}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          <FormControl fullWidth margin="dense">
+            <InputLabel>Área</InputLabel>
+            <Select
+              name="areaId"
+              value={newDocument.areaId}
+              onChange={handleAddDocumentChange}
+            >
+              <MenuItem value="">Seleccionar Área</MenuItem>
+              {areas.map(area => (
+                <MenuItem key={area.areaid} value={area.areaid}>
+                  {area.descripcion}
                 </MenuItem>
               ))}
             </Select>
