@@ -14,11 +14,8 @@ const userRoutes = [
     component: Documentos,
   },
   {
-    type: 'collapse',
-    name: 'Detalle de Documento',
     key: 'document-detail',
     route: '/documents/:documentId',
-    icon: <Icon fontSize="small">description</Icon>,
     component: DocumentDetail,
   },
   {
