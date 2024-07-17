@@ -50,11 +50,14 @@ const UserRolesComponent = () => {
   const fetchUsers = async () => {
     const token = localStorage.getItem('token');
     try {
-      const response = await axios.get('http://localhost:5000/users', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await axios.get(
+        'https://api-gd-senescyt-09b56187292c.herokuapp.com/users',
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       setUsers(response.data);
     } catch (error) {
       console.error('Error fetching users:', error);
@@ -66,11 +69,14 @@ const UserRolesComponent = () => {
   const fetchRoles = async () => {
     const token = localStorage.getItem('token');
     try {
-      const response = await axios.get('http://localhost:5000/roles', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await axios.get(
+        'https://api-gd-senescyt-09b56187292c.herokuapp.com/roles',
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       setRoles(response.data);
     } catch (error) {
       console.error('Error fetching roles:', error);
@@ -81,7 +87,7 @@ const UserRolesComponent = () => {
     const token = localStorage.getItem('token');
     try {
       const response = await axios.get(
-        'http://localhost:5000/roles/asignaciones',
+        'https://api-gd-senescyt-09b56187292c.herokuapp.com/roles/asignaciones',
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -98,7 +104,7 @@ const UserRolesComponent = () => {
     const token = localStorage.getItem('token');
     try {
       const response = await axios.get(
-        `http://localhost:5000/users/details/${userId}`,
+        `https://api-gd-senescyt-09b56187292c.herokuapp.com/users/details/${userId}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -209,11 +215,15 @@ const UserRolesComponent = () => {
 
     const token = localStorage.getItem('token');
     try {
-      await axios.post('http://localhost:5000/users/register', newUser, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      await axios.post(
+        'https://api-gd-senescyt-09b56187292c.herokuapp.com/users/register',
+        newUser,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       fetchUsers();
       fetchAssignments();
@@ -231,7 +241,7 @@ const UserRolesComponent = () => {
     const token = localStorage.getItem('token');
     try {
       await axios.put(
-        `http://localhost:5000/users/${selectedUser.usuarioid}`,
+        `https://api-gd-senescyt-09b56187292c.herokuapp.com/users/${selectedUser.usuarioid}`,
         {
           nombre: selectedUser.nombre,
           correoElectronico: selectedUser.correoelectronico,
@@ -258,7 +268,7 @@ const UserRolesComponent = () => {
     const newStatus = !user.estado;
     try {
       await axios.put(
-        `http://localhost:5000/users/${user.usuarioid}/status`,
+        `https://api-gd-senescyt-09b56187292c.herokuapp.com/users/${user.usuarioid}/status`,
         { estado: newStatus },
         {
           headers: {

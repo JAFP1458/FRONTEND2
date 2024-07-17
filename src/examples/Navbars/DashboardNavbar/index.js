@@ -69,7 +69,7 @@ function DashboardNavbar({ absolute, light, isMini, token }) {
 
       // Eliminar la notificación
       await axios.delete(
-        `http://localhost:5000/documents/notifications/${notificationId}`,
+        `https://api-gd-senescyt-09b56187292c.herokuapp.com/documents/notifications/${notificationId}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -91,7 +91,7 @@ function DashboardNavbar({ absolute, light, isMini, token }) {
     const fetchNotifications = async () => {
       try {
         const response = await axios.get(
-          'http://localhost:5000/documents/notifications',
+          'https://api-gd-senescyt-09b56187292c.herokuapp.com/documents/notifications',
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -107,7 +107,7 @@ function DashboardNavbar({ absolute, light, isMini, token }) {
     fetchNotifications();
 
     // Configuración de WebSockets para recibir notificaciones en tiempo real
-    const socket = io('http://localhost:5000'); // Utiliza io aquí
+    const socket = io('https://api-gd-senescyt-09b56187292c.herokuapp.com'); // Utiliza io aquí
     socket.on('connect', () => {
       console.log('Connected to WebSocket server');
     });

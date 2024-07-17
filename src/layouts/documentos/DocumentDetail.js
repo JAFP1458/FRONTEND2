@@ -40,7 +40,7 @@ const DocumentDetail = ({ token }) => {
     setLoading(true);
     try {
       const response = await axios.get(
-        `http://localhost:5000/documents/byId/${documentId}`,
+        `https://api-gd-senescyt-09b56187292c.herokuapp.com/documents/byId/${documentId}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -63,7 +63,7 @@ const DocumentDetail = ({ token }) => {
   const fetchAuditLogs = async () => {
     try {
       const response = await axios.get(
-        `http://localhost:5000/documents/audit?documentId=${documentId}`,
+        `https://api-gd-senescyt-09b56187292c.herokuapp.com/documents/audit?documentId=${documentId}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -96,7 +96,7 @@ const DocumentDetail = ({ token }) => {
 
     try {
       await axios.put(
-        `http://localhost:5000/documents/${documentId}`,
+        `https://api-gd-senescyt-09b56187292c.herokuapp.com/documents/${documentId}`,
         formDataWithFile,
         {
           headers: {
@@ -117,7 +117,7 @@ const DocumentDetail = ({ token }) => {
   const handleDownloadDocument = async url => {
     try {
       const response = await axios.post(
-        'http://localhost:5000/documents/descargar',
+        'https://api-gd-senescyt-09b56187292c.herokuapp.com/documents/descargar',
         { documentUrl: url },
         {
           headers: {
@@ -153,7 +153,7 @@ const DocumentDetail = ({ token }) => {
   const handleDownloadVersion = async url => {
     try {
       const response = await axios.post(
-        'http://localhost:5000/documents/descargarversion',
+        'https://api-gd-senescyt-09b56187292c.herokuapp.com/documents/descargarversion',
         { versionUrl: url },
         {
           headers: {
@@ -188,14 +188,17 @@ const DocumentDetail = ({ token }) => {
 
   const handleDeleteDocument = async () => {
     try {
-      await axios.delete('http://localhost:5000/documents/borrar', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        data: {
-          documentUrl: documents.url,
-        },
-      });
+      await axios.delete(
+        'https://api-gd-senescyt-09b56187292c.herokuapp.com/documents/borrar',
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          data: {
+            documentUrl: documents.url,
+          },
+        }
+      );
       alert('Documento eliminado correctamente');
       navigate('/documents');
     } catch (error) {
@@ -207,7 +210,7 @@ const DocumentDetail = ({ token }) => {
   const handleDeleteVersion = async () => {
     try {
       await axios.delete(
-        `http://localhost:5000/documents/versions/${versionToDelete}`,
+        `https://api-gd-senescyt-09b56187292c.herokuapp.com/documents/versions/${versionToDelete}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,

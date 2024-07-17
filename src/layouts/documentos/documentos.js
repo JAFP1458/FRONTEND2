@@ -89,12 +89,15 @@ const Documentos = ({ token }) => {
         ...searchFilters,
       };
 
-      const response = await axios.get('http://localhost:5000/documents', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        params,
-      });
+      const response = await axios.get(
+        'https://api-gd-senescyt-09b56187292c.herokuapp.com/documents',
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          params,
+        }
+      );
       setDocuments(response.data || []);
     } catch (error) {
       console.error('Error fetching documents:', error);
@@ -115,7 +118,7 @@ const Documentos = ({ token }) => {
     const fetchNotifications = async () => {
       try {
         const response = await axios.get(
-          'http://localhost:5000/documents/notifications',
+          'https://api-gd-senescyt-09b56187292c.herokuapp.com/documents/notifications',
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -130,7 +133,7 @@ const Documentos = ({ token }) => {
 
     fetchNotifications();
 
-    const socket = io('http://localhost:5000');
+    const socket = io('https://api-gd-senescyt-09b56187292c.herokuapp.com');
     socket.on('notification', notification => {
       setNotifications(prevNotifications => [
         notification,
@@ -144,7 +147,7 @@ const Documentos = ({ token }) => {
   const fetchDocumentTypes = async () => {
     try {
       const response = await axios.get(
-        'http://localhost:5000/documents/types',
+        'https://api-gd-senescyt-09b56187292c.herokuapp.com/documents/types',
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -160,7 +163,7 @@ const Documentos = ({ token }) => {
   const fetchAreas = async () => {
     try {
       const response = await axios.get(
-        'http://localhost:5000/documents/areas',
+        'https://api-gd-senescyt-09b56187292c.herokuapp.com/documents/areas',
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -175,11 +178,14 @@ const Documentos = ({ token }) => {
 
   const fetchUserEmails = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/users', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await axios.get(
+        'https://api-gd-senescyt-09b56187292c.herokuapp.com/users',
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       return response.data.map(user => ({
         id: user.usuarioid,
         email: user.correoelectronico,
@@ -241,7 +247,7 @@ const Documentos = ({ token }) => {
 
     try {
       await axios.post(
-        'http://localhost:5000/documents/share',
+        'https://api-gd-senescyt-09b56187292c.herokuapp.com/documents/share',
         {
           documentId: documentToShare,
           recipientUserId: shareDetails.recipientUserId,
@@ -314,12 +320,16 @@ const Documentos = ({ token }) => {
     formData.append('file', selectedFile);
 
     try {
-      await axios.post('http://localhost:5000/documents', formData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'multipart/form-data',
-        },
-      });
+      await axios.post(
+        'https://api-gd-senescyt-09b56187292c.herokuapp.com/documents',
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
       alert('Documento añadido correctamente');
       fetchDocuments();
       handleAddDocumentClose();

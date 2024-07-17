@@ -27,10 +27,13 @@ function Basic({ setToken, setRole }) {
     console.log('Attempting to log in...');
 
     try {
-      const response = await axios.post('http://localhost:5000/login', {
-        correoElectronico,
-        contraseña,
-      });
+      const response = await axios.post(
+        'https://api-gd-senescyt-09b56187292c.herokuapp.com/login',
+        {
+          correoElectronico,
+          contraseña,
+        }
+      );
       const token = response.data.token;
       console.log('Token received:', token);
 
